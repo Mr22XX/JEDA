@@ -1,0 +1,15 @@
+{
+  "name": "jeda-engine",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "jeda_engine_bg.wasm",
+    "jeda_engine.js",
+    "jeda_engine.d.ts"
+  ],
+  "main": "jeda_engine.js",
+  "types": "jeda_engine.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f5f4ff; --surface: #ffffff; --ink: #15123b; --muted: #5e5a8a; --line: #e1defa;
+  --brand: #5b3fff; --on-brand: #ffffff;
+  --calm: #0e9f7e; --ringan: #c98200; --sedang: #e5640f; --tinggi: #e11d48;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
+    --brand: #8b7bff; --on-brand: #0c0a22;
+    --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81;
+  }
+}
+@theme inline {
+  --color-paper: var(--paper); --color-surface: var(--surface); --color-ink: var(--ink);
+  --color-muted: var(--muted); --color-line: var(--line); --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand); --color-calm: var(--calm); --color-ringan: var(--ringan);
+  --color-sedang: var(--sedang); --color-tinggi: var(--tinggi);
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+}
+html { color-scheme: light dark; }
+body {
+  font-family: var(--font-sans); color: var(--ink); min-height: 100vh;
+  background:
+    radial-gradient(50rem 28rem at 85% -5%, color-mix(in srgb, var(--brand) 16%, transparent), transparent),
+    radial-gradient(40rem 24rem at -5% 35%, color-mix(in srgb, var(--calm) 10%, transparent), transparent),
+    var(--paper);
+}
+:focus-visible:not(textarea) { outline: 3px solid var(--brand); outline-offset: 2px; }
+textarea:focus, textarea:focus-visible { outline: none; }
+
+/* Stabilo: GSAP menganimasikan background-size dari 0% ke 100% */
+.sweep {
+  --hl: color-mix(in srgb, var(--tinggi) 26%, transparent);
+  background-color: transparent; color: inherit; border-radius: 4px; padding: 0 2px;
+  background-image: linear-gradient(var(--hl), var(--hl)); background-repeat: no-repeat;
+  background-position: left center; background-size: 0% 100%;
+  border-bottom: 2px solid var(--tinggi); -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
