@@ -1,5 +1,8 @@
 //! Mesin aturan JEDA: aturan di rules.json, logika penilaian di sini.
 //! Semua berjalan di browser (WASM), teks pengguna tidak dikirim ke server.
+mod domain;
+mod norm;
+
 use regex::{Regex, RegexBuilder};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -30,6 +33,8 @@ struct ComboDef {
 struct RuleSet {
     rules: Vec<RuleDef>,
     combos: Vec<ComboDef>,
+    #[serde(default)]
+    brands: Vec<String>,
 }
 struct Compiled {
     def: RuleDef,
@@ -39,6 +44,7 @@ struct Compiled {
 struct Engine {
     rules: Vec<Compiled>,
     combos: Vec<ComboDef>,
+    brands: Vec<String>,
 }
 
 fn build(p: &str) -> Regex {
@@ -61,7 +67,7 @@ fn engine() -> &'static Engine {
                 Compiled { def, any, also }
             })
             .collect();
-        Engine { rules, combos: set.combos }
+        Engine { rules, combos: set.combos, brands: set.brands }
     })
 }
 
@@ -90,26 +96,36 @@ pub struct Analysis {
 pub fn analyze_text(input: &str) -> Analysis {
     let text: String = input.chars().take(MAX_CHARS).collect();
     let eng = engine();
+    let units: Vec<u16> = text.encode_utf16().collect();
+    let norm = norm::normalize(&text);
     let mut findings = Vec::new();
 
     for r in &eng.rules {
-        if !r.also.is_empty() && !r.also.iter().any(|re| re.is_match(&text)) {
+        if !r.also.is_empty() && !r.also.iter().any(|re| re.is_match(&norm.text)) {
             continue;
         }
         // Satu aturan dihitung sekali per teks (tidak ada double count).
-        let first = r.any.iter().filter_map(|re| re.find(&text)).min_by_key(|m| m.start());
+        let first = r.any.iter().filter_map(|re| re.find(&norm.text)).min_by_key(|m| m.start());
         if let Some(m) = first {
+            let si = norm.starts.partition_point(|&b| b < m.start());
+            let ei = norm.starts.partition_point(|&b| b < m.end());
+            if si >= ei {
+                continue;
+            }
+            // Petakan kembali ke posisi di teks asli supaya sorotan tepat.
+            let (start, end) = (norm.spans[si].0, norm.spans[ei - 1].1);
             findings.push(Finding {
                 rule_id: r.def.id.clone(),
                 tactic: r.def.tactic.clone(),
                 weight: r.def.weight,
-                start: text[..m.start()].encode_utf16().count(),
-                end: text[..m.end()].encode_utf16().count(),
-                snippet: m.as_str().to_string(),
+                start,
+                end,
+                snippet: String::from_utf16_lossy(&units[start..end]),
                 why: r.def.why.clone(),
             });
         }
     }
+    findings.extend(domain::check(&text, &eng.brands));
 
     let mut score: u32 = findings.iter().map(|f| f.weight).sum();
     let hit = |k: &str| findings.iter().any(|f| f.rule_id == k || f.tactic == k);
@@ -179,5 +195,55 @@ mod tests {
     fn satu_aturan_dihitung_sekali() {
         let a = analyze_text("segera segera segera");
         assert_eq!(a.findings.len(), 1);
+    }
+
+    #[test]
+    fn angka_pengganti_huruf_dipulihkan() {
+        let a = analyze_text("S3GERA kirim kode 0TP");
+        assert!(a.findings.iter().any(|f| f.rule_id == "R01"));
+        assert!(a.findings.iter().any(|f| f.rule_id == "R04"));
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn huruf_terpisah_digabung_dan_sorotan_mencakup_aslinya() {
+        let a = analyze_text("Tolong kirim kode O T P ya");
+        let f = a.findings.iter().find(|f| f.rule_id == "R04").expect("R04 harus terdeteksi");
+        assert!(f.snippet.ends_with("O T P"));
+    }
+    #[test]
+    fn posisi_sorotan_tetap_benar_setelah_normalisasi() {
+        let a = analyze_text("S3gera ya");
+        let f = a.findings.iter().find(|f| f.rule_id == "R01").unwrap();
+        assert_eq!((f.start, f.end), (0, 6));
+    }
+    #[test]
+    fn angka_biasa_tidak_diubah() {
+        let a = analyze_text("Batas waktu dalam 1x24 jam");
+        assert!(a.findings.iter().any(|f| f.rule_id == "R01"));
+    }
+    #[test]
+    fn domain_dengan_angka_pengganti_huruf() {
+        let a = analyze_text("Klik https://tokopedi4.com sekarang");
+        assert!(a.findings.iter().any(|f| f.rule_id == "D01"));
+    }
+    #[test]
+    fn domain_dengan_huruf_kiril() {
+        let a = analyze_text("Buka https://b\u{0441}\u{0430}.co.id untuk verifikasi");
+        assert!(a.findings.iter().any(|f| f.rule_id == "D01"));
+    }
+    #[test]
+    fn domain_salah_satu_huruf() {
+        let a = analyze_text("Belanja di https://tokopedla.com");
+        assert!(a.findings.iter().any(|f| f.rule_id == "D02"));
+    }
+    #[test]
+    fn domain_merek_plus_kata_tambahan() {
+        let a = analyze_text("Verifikasi di https://bca-verifikasi.com");
+        assert!(a.findings.iter().any(|f| f.rule_id == "D03"));
+    }
+    #[test]
+    fn domain_resmi_tidak_ditandai() {
+        let a = analyze_text("Info resmi ada di https://www.bca.co.id dan https://www.bankmandiri.co.id");
+        assert!(a.findings.iter().all(|f| !f.rule_id.starts_with('D')));
     }
 }
