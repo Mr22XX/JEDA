@@ -67,6 +67,7 @@ export default function Latihan({ goto }: { goto: (t: Tab) => void }) {
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {SCENARIOS.map((sc) => (
             <button key={sc.id} onClick={() => start(sc.id)} className="flex flex-col rounded-2xl border border-line bg-surface p-5 text-left transition hover:-translate-y-0.5 hover:border-brand">
+              {sc.audience && <span className="mb-2 w-fit rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">{sc.audience}</span>}
               <span className="text-lg font-bold leading-snug">{sc.title}</span>
               <span className="mt-2 text-sm text-muted">{sc.persona}</span>
               <span className="mt-4 text-sm font-semibold text-brand">{done.includes(sc.id) ? "Selesai. Main lagi" : "Mulai simulasi"}</span>

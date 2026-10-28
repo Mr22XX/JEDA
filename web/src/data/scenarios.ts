@@ -1,8 +1,7 @@
 export type Choice = { text: string; next: string; good: boolean; feedback: string; tactics?: string[] };
 export type Node = { messages: string[]; choices?: Choice[]; end?: { good: boolean; title: string; summary: string } };
-export type Scenario = { id: string; title: string; persona: string; fact: string; factUrl: string; start: string; nodes: Record<string, Node> };
+export type Scenario = { id: string; title: string; persona: string; audience?: string; fact: string; factUrl: string; start: string; nodes: Record<string, Node> };
 
-// Semua nama, nomor, dan tautan di bawah ini fiktif.
 export const SCENARIOS: Scenario[] = [
   {
     id: "loker", title: "Tawaran kerja yang terlalu bagus", persona: "Kamu mahasiswa yang lagi cari kerja sampingan.",
@@ -65,6 +64,80 @@ export const SCENARIOS: Scenario[] = [
       e_good: { messages: [], end: { good: true, title: "Kamu memastikan dulu", summary: "Satu telepon ke nomor lama cukup untuk membongkar penyamaran ini. Kabari teman aslinya bahwa nomornya dipakai orang lain." } },
       e_bad: { messages: [], end: { good: false, title: "Kamu sudah mentransfer uang", summary: "Kalau ini nyata, buka Langkah darurat sekarang dan laporkan secepatnya ke IASC." } },
       e_bad2: { messages: [], end: { good: false, title: "Kamu menuruti tekanan", summary: "Kalau ini nyata, buka Langkah darurat sekarang dan laporkan secepatnya ke IASC." } },
+    },
+  },
+  {
+    id: "pinjol", title: "Pinjaman cair 10 menit", persona: "Kamu butuh uang cepat untuk bayar kos dan tidak punya banyak pilihan.",
+    fact: "Antara Januari dan Juni 2026, OJK menerima 19.169 pengaduan pinjaman online ilegal dan 2.878 pengaduan investasi ilegal.",
+    factUrl: "https://keuangan.kontan.co.id/news/satgas-pasti-hentikan-951-pinjol-ilegal-dan-238-investasi-ilegal-per-juni-2026",
+    start: "n1",
+    nodes: {
+      n1: { messages: ["Butuh dana cepat? Pinjaman cair 10 menit, tanpa BI checking, tanpa jaminan, langsung masuk rekening.", "Unduh aplikasi PinjamCepat Nusa di sini: https://pinjam-cepat.example/app.apk"], choices: [
+        { text: "Unduh aplikasinya, lagi butuh banget", next: "n2", good: false, tactics: ["IMING-IMING", "TAUTAN MENCURIGAKAN"], feedback: "Janji cair cepat tanpa pengecekan adalah umpan yang sering dipakai pinjol ilegal, dan aplikasinya dibagikan lewat file di luar toko aplikasi resmi. Wajar kalau kamu tergoda saat sedang butuh uang. Justru di saat itulah paling mudah terpancing." },
+        { text: "Cek dulu apakah penyedianya berizin OJK lewat Kontak OJK 157", next: "e_good", good: true, tactics: ["IMING-IMING"], feedback: "Tepat. Pastikan penyedia pinjaman berizin dan diawasi OJK sebelum meminjam. Kamu bisa menanyakannya ke Kontak OJK 157." },
+      ] },
+      n2: { messages: ["Aplikasi meminta izin akses kontak, galeri foto, dan lokasi agar pinjamanmu disetujui."], choices: [
+        { text: "Izinkan semua, biar cepat disetujui", next: "n3", good: false, tactics: ["DATA RAHASIA"], feedback: "Akses ke kontak dan foto sering dipakai untuk menekan peminjam saat penagihan. Izin sebesar itu biasanya tidak diperlukan untuk meminjam uang." },
+        { text: "Tolak izin berlebihan dan hapus aplikasinya", next: "e_good", good: true, tactics: ["DATA RAHASIA"], feedback: "Tepat. Izin yang tidak masuk akal untuk fungsi aplikasi adalah tanda untuk berhenti." },
+      ] },
+      n3: { messages: ["Pengajuan Rp1.000.000 disetujui, dana yang masuk Rp700.000. Jatuh tempo 7 hari.", "Hari ke-8: Kamu menunggak! Bayar sekarang atau kami sebarkan fotomu dan hubungi seluruh kontak di HP-mu."], choices: [
+        { text: "Pinjam di aplikasi lain untuk melunasi", next: "e_bad", good: false, tactics: ["RASA TAKUT"], feedback: "Menutup pinjaman dengan pinjaman baru memperbesar masalah dan memberi akses ke lebih banyak aplikasi sejenis." },
+        { text: "Tetap tenang, simpan bukti ancaman, ceritakan ke orang tepercaya, lalu lapor ke OJK", next: "e_good2", good: true, tactics: ["RASA TAKUT"], feedback: "Tepat. Ancaman menyebarkan data adalah pemerasan. Simpan tangkapan layarnya dan laporkan ke sipasti.ojk.go.id, Kontak OJK 157, atau polisi." },
+      ] },
+      e_good: { messages: [], end: { good: true, title: "Kamu berhenti di awal", summary: "Memeriksa izin dan menolak izin berlebihan melindungi uang dan datamu. Pinjol ilegal bisa dilaporkan di sipasti.ojk.go.id." } },
+      e_good2: { messages: [], end: { good: true, title: "Kamu tidak menuruti ancaman", summary: "Menyimpan bukti dan melapor adalah langkah yang tepat. Buka Langkah darurat untuk urutan lengkapnya." } },
+      e_bad: { messages: [], end: { good: false, title: "Kamu masuk lingkaran pinjaman", summary: "Kalau ini nyata, jangan menambah pinjaman baru untuk menutup yang lama. Hubungi Kontak OJK 157 dan buka Langkah darurat." } },
+    },
+  },
+  {
+    id: "investasi", title: "Ajakan investasi dari teman lama", persona: "Kamu orang tua yang baru pensiun dan ingin tabunganmu berkembang.", audience: "Sudut pandang orang tua",
+    fact: "Antara Januari dan Juni 2026, OJK menerima 2.878 pengaduan investasi ilegal, selain 19.169 pengaduan pinjol ilegal.",
+    factUrl: "https://keuangan.kontan.co.id/news/satgas-pasti-hentikan-951-pinjol-ilegal-dan-238-investasi-ilegal-per-juni-2026",
+    start: "n1",
+    nodes: {
+      n1: { messages: ["Bu, ini Bu Ratna, teman arisan dulu. Ikut grup investasi kami yuk. Modal Rp5 juta, untung 10% per bulan, pasti cair. Banyak ibu-ibu sudah berhasil.", "Katanya diawasi OJK juga lho."], choices: [
+        { text: "Wah menarik, gimana caranya ikut?", next: "n2", good: false, tactics: ["IMING-IMING", "OTORITAS PALSU", "KEDEKATAN PALSU"], feedback: "Untung tinggi yang dijanjikan pasti, klaim diawasi OJK, dan ajakan dari kenalan adalah kombinasi yang sering muncul pada penawaran investasi ilegal. OJK mengimbau waspada pada imbal hasil tinggi yang tidak masuk akal." },
+        { text: "Terima kasih, saya cek dulu izinnya ke Kontak OJK 157 dan tanya anak saya", next: "n3", good: true, tactics: ["OTORITAS PALSU"], feedback: "Tepat. Klaim diawasi OJK harus kamu cek sendiri, bukan dari pengakuan di chat." },
+      ] },
+      n2: { messages: ["Gampang, Bu. Transfer ke rekening atas nama pribadi saya dulu, nanti ibu lihat untung hariannya di aplikasi kami.", "Tinggal 3 slot untuk gelombang ini."], choices: [
+        { text: "Transfer Rp1 juta dulu untuk mencoba", next: "n4", good: false, tactics: ["BIAYA DI MUKA", "URGENSI"], feedback: "Menyetor ke rekening pribadi dan tekanan slot adalah tanda bahaya. Mencoba dengan nominal kecil terasa aman, padahal sering menjadi tahap awal." },
+        { text: "Saya cek izin dan legalitasnya dulu", next: "n3", good: true, tactics: ["URGENSI"], feedback: "Tepat. Menunda memberimu waktu memeriksa. Penipu justru butuh kamu memutuskan cepat." },
+      ] },
+      n3: { messages: ["Ibu terlalu banyak mikir. Besok gelombang ditutup, yang ragu nanti menyesal.", "Kalau ibu ajak 3 teman ikut, ibu dapat bonus."], choices: [
+        { text: "Saya tetap cek ke Kontak OJK 157 dan sipasti.ojk.go.id, tidak ikut dulu", next: "e_good", good: true, tactics: ["URGENSI", "IMING-IMING"], feedback: "Tepat. Bonus karena mengajak teman dan batas waktu sering menjadi ciri skema yang bergantung pada anggota baru." },
+        { text: "Ya sudah, ikut supaya tidak ketinggalan", next: "e_bad", good: false, tactics: ["URGENSI"], feedback: "Takut ketinggalan adalah perasaan yang sengaja dimainkan. Keputusan soal tabungan layak diambil dengan tenang." },
+      ] },
+      n4: { messages: ["Untung Rp100.000 sudah masuk, Bu! Terbukti kan? Tambah modal Rp20 juta, untungnya berlipat. Ajak keluarga supaya dapat bonus."], choices: [
+        { text: "Terbukti! Saya tambah modal dan ajak keluarga", next: "e_bad2", good: false, tactics: ["IMING-IMING", "KEDEKATAN PALSU"], feedback: "Pembayaran kecil di awal sering dipakai untuk membangun kepercayaan sebelum korban menyetor jumlah besar. Itu bukan bukti usahanya nyata." },
+        { text: "Cukup. Saya hentikan dan bicarakan dengan anak sebelum menyetor lagi", next: "e_good2", good: true, tactics: ["IMING-IMING"], feedback: "Tepat. Berhenti dan meminta pendapat orang tepercaya adalah langkah yang melindungimu." },
+      ] },
+      e_good: { messages: [], end: { good: true, title: "Kamu memeriksa sebelum menyetor", summary: "Dengan mengecek izin dan menunda keputusan, kamu menghindari risiko kehilangan tabungan. Tawaran mencurigakan bisa dilaporkan di sipasti.ojk.go.id atau Kontak OJK 157." } },
+      e_good2: { messages: [], end: { good: true, title: "Kamu berhenti sebelum rugi lebih besar", summary: "Berhenti setelah setoran kecil menyelamatkan sisa tabunganmu. Kalau sudah ada uang yang masuk, buka Langkah darurat dan laporkan ke OJK." } },
+      e_bad: { messages: [], end: { good: false, title: "Kamu hampir ikut karena takut ketinggalan", summary: "Kalau ini nyata, jangan menyetor dulu. Cek izin lewat Kontak OJK 157 dan bicarakan dengan keluarga." } },
+      e_bad2: { messages: [], end: { good: false, title: "Setoran besar masuk ke skema yang meragukan", summary: "Kalau ini nyata, segera hubungi bank untuk meminta penundaan, laporkan ke IASC, dan beri tahu keluarga. Ini bukan salahmu: skema seperti ini memang dirancang meyakinkan." } },
+    },
+  },
+  {
+    id: "lovescam", title: "Teman baru yang terasa pas banget", persona: "Kamu baru kenal seseorang lewat media sosial dua minggu lalu.",
+    fact: "OJK mencantumkan love scam sebagai salah satu modus penipuan yang memanfaatkan rasa kesepian korban.",
+    factUrl: "https://ojk.go.id/id/berita-dan-kegiatan/info-terkini/Documents/Pages/Satgas-PASTI-Blokir-507-Aktivitas-dan-Entitas-Keuangan-Ilegal-Minta-Masyarakat-Waspadai-Penipuan-yang-Semakin-Marak/Satgas%20PASTI%20Blokir%20507%20Aktivitas%20dan%20Entitas%20Keuangan%20Ilegal%20Minta%20Masyarakat%20Waspadai%20Penipuan%20yang%20Semakin%20Marak.pdf",
+    start: "n1",
+    nodes: {
+      n1: { messages: ["Aku nggak pernah ngerasa senyambung ini sama siapa pun. Rasanya kita memang ditakdirkan ketemu.", "Maaf ya aku belum bisa video call, sinyal di tempat kerjaku di luar negeri jelek banget."], choices: [
+        { text: "Aku juga ngerasa gitu. Aku percaya sama kamu", next: "n2", good: false, tactics: ["KEDEKATAN PALSU"], feedback: "Wajar kalau kamu merasa dekat. Pelaku love scam memang ahli membangun kedekatan dengan cepat. Alasan yang terus berulang untuk tidak bisa video call adalah tanda yang perlu diperhatikan." },
+        { text: "Aku senang ngobrol sama kamu, tapi aku mau video call dulu sebelum lebih dekat", next: "n3", good: true, tactics: ["KEDEKATAN PALSU"], feedback: "Langkah yang sehat. Orang yang tulus akan mengerti kamu ingin memastikan." },
+      ] },
+      n2: { messages: ["Sayang, aku butuh bantuan. Dompet dan pasporku dicuri, aku nggak bisa pulang.", "Bisa transfer Rp5 juta dulu? Aku ganti begitu sampai. Jangan cerita ke keluargamu dulu ya, mereka belum tentu paham."], choices: [
+        { text: "Aku transfer sekarang", next: "e_bad", good: false, tactics: ["BIAYA DI MUKA", "ISOLASI", "URGENSI"], feedback: "Permintaan uang mendesak dari orang yang belum pernah ditemui, ditambah permintaan merahasiakannya dari keluarga, adalah pola khas love scam." },
+        { text: "Aku nggak bisa kirim uang ke orang yang belum pernah kutemui", next: "n3", good: true, tactics: ["BIAYA DI MUKA"], feedback: "Tepat. Batas yang jelas melindungimu, meski rasanya berat." },
+      ] },
+      n3: { messages: ["Kalau kamu benar-benar sayang aku, kamu pasti percaya. Jangan bikin aku kecewa ya."], choices: [
+        { text: "Aku cerita ke sahabatku dan cek foto profilnya dengan pencarian gambar terbalik", next: "e_good", good: true, tactics: ["ISOLASI", "KEDEKATAN PALSU"], feedback: "Tepat. Pelaku ingin kamu menyimpannya sendiri. Pendapat kedua dan pengecekan foto sering cukup untuk membongkarnya." },
+        { text: "Maaf, aku transfer", next: "e_bad2", good: false, tactics: ["KEDEKATAN PALSU", "RASA TAKUT"], feedback: "Rasa bersalah dan takut kehilangan sengaja dimainkan di sini. Perasaanmu nyata, tapi tekanan itu bagian dari cara pelaku bekerja." },
+      ] },
+      e_good: { messages: [], end: { good: true, title: "Kamu menjaga jarak yang aman", summary: "Kamu meminta bukti nyata, menolak transfer, dan melibatkan orang tepercaya. Akun semacam ini bisa kamu laporkan ke platform tempat kalian berkenalan." } },
+      e_bad: { messages: [], end: { good: false, title: "Uang sudah terkirim", summary: "Ini bukan salahmu: pelaku love scam memang mahir membangun kedekatan. Kalau ini nyata, buka Langkah darurat dan laporkan ke IASC secepatnya." } },
+      e_bad2: { messages: [], end: { good: false, title: "Kamu menuruti tekanan emosional", summary: "Ini bukan salahmu. Kalau ini nyata, buka Langkah darurat dan laporkan ke IASC secepatnya." } },
     },
   },
 ];
