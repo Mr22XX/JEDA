@@ -49,3 +49,15 @@ export const SAMPLES = [
 
 export const label = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 export type Tab = "cek" | "latihan" | "darurat";
+
+// Semua tautan contoh bersifat fiktif (domain .example dipakai agar tidak mengarah ke situs nyata).
+export const LINK_SAMPLES = [
+  { name: "Domain tiruan", text: "https://bca-verifikasi.xyz/login" },
+  { name: "File APK", text: "https://resi-paket.example/resi.apk" },
+  { name: "Pengecoh @", text: "https://www.bca.co.id@akun-aman.example/masuk" },
+  { name: "Tautan resmi", text: "https://www.bca.co.id/" },
+];
+
+export const LINK_NOTE: Partial<Record<Level, string>> = {
+  tidak_ditemukan: "Bentuk tautan ini tidak menunjukkan tanda bahaya yang kami kenali. Kami tidak membuka situsnya, jadi isi halaman dan reputasinya belum diperiksa.",
+};

@@ -1,11 +1,13 @@
 import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { analyze, type Analysis } from "../engine";
-import { SAMPLES, type Tab } from "../content";
-import FactStrip from "../components/FactStrip";
+import { analyze, analyzeLink, type Analysis, type LinkParts } from "../engine";
+import { SAMPLES, LINK_SAMPLES, type Tab } from "../content";
 import Result from "../components/Result";
 import MessageBox from "../components/MessageBox";
+import LinkBox from "../components/LinkBox";
+import LinkPartsCard from "../components/LinkPartsCard";
+import FactStrip from "../components/FactStrip";
 
 gsap.registerPlugin(useGSAP);
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -16,13 +18,18 @@ const Lock = () => (
   </svg>
 );
 
-function Empty() {
+type Mode = "pesan" | "tautan";
+
+function Empty({ mode }: { mode: Mode }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
     if (reduced()) return;
     gsap.from("[data-bar]", { scaleY: 0, transformOrigin: "50% 100%", duration: 0.8, stagger: 0.14, ease: "back.out(1.6)", delay: 0.6 });
     gsap.to("[data-breathe]", { scale: 0.9, duration: 1.8, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 1.6 });
   }, { scope: ref });
+  const points = mode === "pesan"
+    ? ["Bagian pesan yang mencurigakan ditandai", "Alasan di balik setiap tanda bahaya", "Langkah yang bisa kamu ambil"]
+    : ["Tautan diuraikan: siapa pemilik domain sebenarnya", "Tanda bahaya pada bentuk tautan ditandai", "Langkah yang bisa kamu ambil"];
   return (
     <div ref={ref} className="rounded-3xl border border-line bg-surface/70 p-8 text-center backdrop-blur sm:p-12">
       <div data-breathe className="mx-auto flex w-fit gap-3" aria-hidden>
@@ -31,18 +38,19 @@ function Empty() {
       </div>
       <h2 className="mt-8 text-2xl font-bold">Hasil pemeriksaan muncul di sini</h2>
       <ul className="mx-auto mt-4 max-w-xs space-y-2 text-left text-sm text-muted">
-        {["Bagian pesan yang mencurigakan ditandai", "Alasan di balik setiap tanda bahaya", "Langkah yang bisa kamu ambil"].map((t) => (
-          <li key={t} className="flex items-center gap-2"><span className="size-2 rounded-full bg-calm" aria-hidden />{t}</li>
-        ))}
+        {points.map((t) => <li key={t} className="flex items-center gap-2"><span className="size-2 shrink-0 rounded-full bg-calm" aria-hidden />{t}</li>)}
       </ul>
     </div>
   );
 }
 
 export default function Cek({ goto }: { goto: (t: Tab) => void }) {
+  const [mode, setMode] = useState<Mode>("pesan");
   const [text, setText] = useState("");
+  const [link, setLink] = useState("");
   const [checked, setChecked] = useState("");
   const [result, setResult] = useState<Analysis | null>(null);
+  const [parts, setParts] = useState<LinkParts | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -52,25 +60,37 @@ export default function Cek({ goto }: { goto: (t: Tab) => void }) {
   useGSAP(() => {
     if (reduced()) return;
     gsap.timeline({ defaults: { ease: "power3.out" } })
-      .from("[data-in=line]", { yPercent: 110, duration: 0.8, stagger: 0.14 }, "-=0.2")
+      .from("[data-in=line]", { yPercent: 110, duration: 0.8, stagger: 0.14 })
       .from("[data-in=fade]", { y: 20, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.45");
   }, { scope: root });
 
+  function reset() { setResult(null); setParts(null); setError(""); }
+  function switchMode(m: Mode) { if (m !== mode) { setMode(m); reset(); } }
+
   async function run() {
-    if (!text.trim() || busy) return;
+    const input = mode === "pesan" ? text : link;
+    if (!input.trim() || busy) return;
     setBusy(true); setError("");
     try {
-      const r = await analyze(text);
-      setResult(r); setChecked(text);
+      if (mode === "pesan") {
+        setResult(await analyze(text)); setChecked(text); setParts(null);
+      } else {
+        const r = await analyzeLink(link);
+        if (r.error) { setResult(null); setParts(null); setError(r.error); return; }
+        setResult(r); setChecked(r.input); setParts(r.parts);
+      }
       requestAnimationFrame(() => {
         if (window.innerWidth >= 1024) return;
         resultRef.current?.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
       });
     } catch (e) {
-      setResult(null);
-      setError(e instanceof Error ? e.message : "Terjadi kesalahan saat memeriksa pesan. Muat ulang halaman lalu coba lagi.");
+      setResult(null); setParts(null);
+      setError(e instanceof Error ? e.message : "Terjadi kesalahan saat memeriksa. Muat ulang halaman lalu coba lagi.");
     } finally { setBusy(false); }
   }
+
+  const samples = mode === "pesan" ? SAMPLES : LINK_SAMPLES;
+  const fill = mode === "pesan" ? setText : setLink;
 
   return (
     <div ref={root}>
@@ -81,39 +101,51 @@ export default function Cek({ goto }: { goto: (t: Tab) => void }) {
             <span className="block overflow-hidden pb-1"><span data-in="line" className="block">Jeda dulu.</span></span>
           </h1>
           <p data-in="fade" className="mt-5 max-w-prose text-lg leading-relaxed text-muted">
-            Tempel pesan, tawaran, atau tautan yang terasa janggal. Kami tunjukkan bagian yang mencurigakan beserta alasannya.
+            Tempel pesan atau tautan yang terasa janggal. Kami tunjukkan bagian yang mencurigakan beserta alasannya.
           </p>
 
-          <div data-in="fade" className="mt-8">
-            <MessageBox value={text} onChange={setText} onSubmit={run} busy={busy}
-              onClear={() => { setText(""); setResult(null); setError(""); }} />
+          <div data-in="fade" role="group" aria-label="Jenis pemeriksaan" className="mt-8 inline-flex rounded-full border border-line bg-surface p-1">
+            {([["pesan", "Cek pesan"], ["tautan", "Cek tautan"]] as const).map(([m, l]) => (
+              <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m}
+                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${mode === m ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{l}</button>
+            ))}
+          </div>
+
+          <div data-in="fade" className="mt-4">
+            {mode === "pesan"
+              ? <MessageBox value={text} onChange={setText} onSubmit={run} busy={busy} onClear={() => { setText(""); reset(); }} />
+              : <LinkBox value={link} onChange={setLink} onSubmit={run} busy={busy} />}
           </div>
 
           <div data-in="fade" className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted">Coba contoh fiktif:</span>
-            {SAMPLES.map((s) => (
-              <button key={s.name} onClick={() => setText(s.text)}
-                className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand active:translate-y-0">
-                {s.name}
-              </button>
+            <span className="text-sm text-muted">{mode === "pesan" ? "Coba contoh fiktif:" : "Coba contoh tautan:"}</span>
+            {samples.map((s) => (
+              <button key={s.name} onClick={() => fill(s.text)}
+                className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand active:translate-y-0">{s.name}</button>
             ))}
           </div>
 
           <p data-in="fade" className="mt-6 flex max-w-prose items-start gap-2 text-sm leading-relaxed text-muted">
-            <Lock /> Teks kamu diproses di perangkat ini dan tidak dikirim ke server. Jangan masukkan data pribadi asli seperti nomor KTP atau kode OTP.
+            <Lock />
+            {mode === "pesan"
+              ? "Teks kamu diproses di perangkat ini dan tidak dikirim ke server. Jangan masukkan data pribadi asli seperti nomor KTP atau kode OTP."
+              : "Kami hanya membaca bentuk tautan di perangkatmu. Situsnya tidak dibuka dan tautannya tidak dikirim ke mana pun."}
           </p>
         </section>
 
         <section data-in="fade" ref={resultRef} aria-live="polite" className="scroll-mt-4 lg:sticky lg:top-8 lg:self-start">
           {error ? (
             <div role="alert" className="rounded-3xl border border-tinggi bg-tinggi/10 p-5">
-              <h2 className="font-bold text-tinggi">Pesan belum bisa diperiksa</h2>
+              <h2 className="font-bold text-tinggi">Belum bisa diperiksa</h2>
               <p className="mt-1 text-sm">{error}</p>
             </div>
           ) : result ? (
-            <Result result={result} text={checked} onGoto={goto} />
+            <div className="space-y-4">
+              <Result result={result} text={checked} mode={mode} onGoto={goto} />
+              {mode === "tautan" && parts && <LinkPartsCard parts={parts} />}
+            </div>
           ) : (
-            <Empty />
+            <Empty mode={mode} />
           )}
         </section>
       </main>

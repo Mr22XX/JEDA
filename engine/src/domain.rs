@@ -11,7 +11,7 @@ fn host_re() -> &'static Regex {
     R.get_or_init(|| Regex::new(r"(?i)(?:https?://)?((?:[\p{L}\p{N}-]+\.)+\p{L}{2,})").unwrap())
 }
 
-fn fold(token: &str) -> String {
+pub(crate) fn fold(token: &str) -> String {
     let lower: String = token.chars().flat_map(|c| c.to_lowercase()).map(homoglyph).collect();
     let letters = lower.chars().filter(|c| c.is_alphabetic()).count();
     let digits = lower.chars().filter(|c| c.is_ascii_digit()).count();

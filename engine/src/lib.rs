@@ -1,6 +1,7 @@
 //! Mesin aturan JEDA: aturan di rules.json, logika penilaian di sini.
 //! Semua berjalan di browser (WASM), teks pengguna tidak dikirim ke server.
 mod domain;
+mod link;
 mod norm;
 
 use regex::{Regex, RegexBuilder};
@@ -165,6 +166,11 @@ pub fn analyze_text(input: &str) -> Analysis {
 #[wasm_bindgen]
 pub fn analyze(text: &str) -> String {
     serde_json::to_string(&analyze_text(text)).unwrap_or_else(|_| "{}".into())
+}
+
+#[wasm_bindgen]
+pub fn analyze_link(url: &str) -> String {
+    serde_json::to_string(&link::analyze_link(url, &engine().brands)).unwrap_or_else(|_| "{}".into())
 }
 
 #[cfg(test)]

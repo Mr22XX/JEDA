@@ -28,7 +28,7 @@ body {
     var(--paper);
 }
 :focus-visible:not(textarea) { outline: 3px solid var(--brand); outline-offset: 2px; }
-textarea:focus, textarea:focus-visible { outline: none; }
+textarea:focus, textarea:focus-visible, #lnk:focus, #lnk:focus-visible { outline: none; }
 
 /* Stabilo: GSAP menganimasikan background-size dari 0% ke 100% */
 .sweep {

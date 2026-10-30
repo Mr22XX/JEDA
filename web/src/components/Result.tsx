@@ -2,7 +2,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Analysis, Finding } from "../engine";
-import { LEVELS, label, type Tab } from "../content";
+import { LEVELS, LINK_NOTE, label, type Tab } from "../content";
 
 gsap.registerPlugin(useGSAP);
 
@@ -20,7 +20,7 @@ function segments(text: string, findings: Finding[]) {
   return out;
 }
 
-export default function Result({ result, text, onGoto }: { result: Analysis; text: string; onGoto?: (t: Tab) => void }) {
+export default function Result({ result, text, mode = "pesan", onGoto }: { result: Analysis; text: string; mode?: "pesan" | "tautan"; onGoto?: (t: Tab) => void }) {
   const lv = LEVELS[result.level];
   const ref = useRef<HTMLElement>(null);
   const markerAt = `${(0.03 + 0.94 * Math.min(result.score, 12) / 12) * 100}%`;
@@ -51,7 +51,7 @@ export default function Result({ result, text, onGoto }: { result: Analysis; tex
       </div>
 
       <h2 data-title className={`mt-5 text-3xl font-extrabold leading-tight ${lv.text}`}>{lv.title}</h2>
-      <p data-title className="mt-1 text-muted">{lv.note}</p>
+      <p data-title className="mt-1 text-muted">{(mode === "tautan" && LINK_NOTE[result.level]) || lv.note}</p>
 
       {result.findings.length > 0 && (
         <>
