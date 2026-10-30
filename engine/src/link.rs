@@ -27,7 +27,6 @@ pub struct Parts {
 #[derive(Serialize)]
 pub struct LinkAnalysis {
     pub error: Option<String>,
-    /// Tautan yang sudah dirapikan (spasi pinggir dibuang). Posisi sorotan merujuk ke teks ini.
     pub input: String,
     pub score: u32,
     pub level: &'static str,

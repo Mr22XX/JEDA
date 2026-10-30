@@ -1,6 +1,5 @@
 import type { Level } from "./engine";
 
-// Nama kelas ditulis lengkap agar terdeteksi Tailwind.
 export const LEVELS: Record<Level, { title: string; note: string; filled: number; text: string; bar: string; steps: string[] }> = {
   tidak_ditemukan: {
     title: "Tidak ada tanda bahaya yang kami kenali",
@@ -50,7 +49,6 @@ export const SAMPLES = [
 export const label = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 export type Tab = "cek" | "latihan" | "darurat";
 
-// Semua tautan contoh bersifat fiktif (domain .example dipakai agar tidak mengarah ke situs nyata).
 export const LINK_SAMPLES = [
   { name: "Domain tiruan", text: "https://bca-verifikasi.xyz/login" },
   { name: "File APK", text: "https://resi-paket.example/resi.apk" },
