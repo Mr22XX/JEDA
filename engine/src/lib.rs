@@ -58,7 +58,7 @@ fn build(p: &str) -> Regex {
 fn engine() -> &'static Engine {
     static E: OnceLock<Engine> = OnceLock::new();
     E.get_or_init(|| {
-        let set: RuleSet = serde_json::from_str(RULES_JSON).expect("rules.json tidak valid");
+        let set: RuleSet = serde_json::from_str(RULES_JSON.trim_start_matches('\u{feff}')).unwrap_or_else(|e| panic!("rules.json tidak valid: {e}"));
         let rules = set
             .rules
             .into_iter()
