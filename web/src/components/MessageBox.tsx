@@ -63,7 +63,7 @@ export default function MessageBox({ value, onChange, onSubmit, onClear, busy }:
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") onSubmit(); }}
             placeholder="Tempel pesan WhatsApp, SMS, email, atau tautan yang membuatmu ragu…"
-            className="block min-h-40 w-full resize-none overflow-y-auto bg-transparent px-5 py-3 text-base leading-relaxed outline-none placeholder:text-muted/70"
+            className="block min-h-32 sm:min-h-40 w-full resize-none overflow-y-auto bg-transparent px-5 py-3 text-base leading-relaxed outline-none placeholder:text-muted/70"
           />
 
           <p aria-live="polite" className={`px-5 text-sm text-tinggi ${hint ? "pb-2" : "hidden"}`}>{hint}</p>

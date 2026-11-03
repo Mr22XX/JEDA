@@ -2,7 +2,8 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Analysis, Finding } from "../engine";
-import { LEVELS, LINK_NOTE, label, type Tab } from "../content";
+import { LEVELS, LINK_NOTE, label, type Goto } from "../content";
+import { recommend } from "../lib/recommend";
 
 gsap.registerPlugin(useGSAP);
 
@@ -20,8 +21,9 @@ function segments(text: string, findings: Finding[]) {
   return out;
 }
 
-export default function Result({ result, text, mode = "pesan", onGoto }: { result: Analysis; text: string; mode?: "pesan" | "tautan"; onGoto?: (t: Tab) => void }) {
+export default function Result({ result, text, mode = "pesan", onGoto }: { result: Analysis; text: string; mode?: "pesan" | "tautan"; onGoto?: Goto }) {
   const lv = LEVELS[result.level];
+  const rec = recommend(result);
   const ref = useRef<HTMLElement>(null);
   const markerAt = `${(0.03 + 0.94 * Math.min(result.score, 12) / 12) * 100}%`;
 
@@ -86,7 +88,9 @@ export default function Result({ result, text, mode = "pesan", onGoto }: { resul
         {onGoto && (
           <div className="mt-4 flex flex-wrap gap-2">
             <button onClick={() => onGoto("darurat")} className="rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-paper">Sudah terlanjur? Buka langkah darurat</button>
-            <button onClick={() => onGoto("latihan")} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold">Latih insting dengan simulasi</button>
+            <button onClick={() => onGoto("latihan", rec?.id)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-left">
+              {rec ? `Latih pola ini: ${rec.title}` : "Latih insting dengan simulasi"}
+            </button>
           </div>
         )}
       </div>

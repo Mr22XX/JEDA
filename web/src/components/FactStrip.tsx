@@ -2,9 +2,9 @@ import { STATS } from "../data/facts";
 
 export default function FactStrip() {
   return (
-    <section className="mx-auto max-w-6xl px-5 pb-28 sm:pb-20">
+    <section className="mx-auto max-w-6xl px-5 pb-12">
       <h2 className="text-2xl font-extrabold tracking-tight">Kenapa ini penting</h2>
-      <p className="mt-1 text-muted">Angka dari laporan masyarakat Indonesia</p>
+      <p className="mt-1 text-muted">Angka dari laporan nyata masyarakat Indonesia, bukan simulasi.</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map((s) => (
           <div key={s.label} className="rounded-2xl border border-line bg-surface p-5">

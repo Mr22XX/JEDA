@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SITUATIONS } from "../data/emergency";
 import { CHANNELS, CHECKED } from "../data/facts";
+import ShareCard from "../components/Sharecard";
 
 export default function Darurat() {
   const [sid, setSid] = useState<string | null>(null);
@@ -15,7 +16,7 @@ export default function Darurat() {
 
   if (!s) {
     return (
-      <main className="mx-auto max-w-4xl px-5 pb-28 pt-10 sm:pt-14">
+      <main className="mx-auto max-w-4xl px-5 pb-10 pt-8 sm:pt-14">
         <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Sudah terlanjur? Tenang, kita atur langkahnya.</h1>
         <p className="mt-4 max-w-prose text-lg text-muted">Pilih yang paling mirip dengan situasimu. Kamu akan mendapat urutan langkah dan kanal pelaporan resmi. Makin cepat bertindak, makin baik.</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -51,7 +52,7 @@ export default function Darurat() {
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-5 pb-28 pt-8 sm:pt-12">
+    <main className="mx-auto max-w-2xl px-5 pb-10 pt-6 sm:pt-12">
       <button onClick={() => setSid(null)} className="text-sm font-semibold text-muted hover:text-ink">← Ganti situasi</button>
       <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight">{s.title}</h1>
       {group("Lakukan sekarang", s.now, "n")}
@@ -77,7 +78,10 @@ export default function Darurat() {
         <h2 className="text-xl font-bold">Peringatkan teman dan keluarga</h2>
         <p className="mt-1 text-sm text-muted">Salin pesan ini dan kirim ke grup. Jangan menyertakan data pribadi korban.</p>
         <p className="mt-3 rounded-xl bg-surface p-4 leading-relaxed">{s.warn}</p>
-        <button onClick={() => copy(s.warn)} className="mt-3 h-11 rounded-xl bg-brand px-5 font-semibold text-on-brand">{copied ? "Tersalin" : "Salin pesan"}</button>
+        <div className="flex flex-wrap gap-x-3">
+          <button onClick={() => copy(s.warn)} className="mt-3 h-11 rounded-xl bg-brand px-5 font-semibold text-on-brand">{copied ? "Tersalin" : "Salin pesan"}</button>
+          <ShareCard text={s.warn} />
+        </div>
       </section>
     </main>
   );

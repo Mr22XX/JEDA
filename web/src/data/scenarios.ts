@@ -1,10 +1,11 @@
 export type Choice = { text: string; next: string; good: boolean; feedback: string; tactics?: string[] };
 export type Node = { messages: string[]; choices?: Choice[]; end?: { good: boolean; title: string; summary: string } };
-export type Scenario = { id: string; title: string; persona: string; audience?: string; fact: string; factUrl: string; start: string; nodes: Record<string, Node> };
+export type Scenario = { id: string; title: string; persona: string; contact: string; audience?: string; fact: string; factUrl: string; start: string; nodes: Record<string, Node> };
 
+// Semua nama, nomor, dan tautan di bawah ini fiktif.
 export const SCENARIOS: Scenario[] = [
   {
-    id: "loker", title: "Tawaran kerja yang terlalu bagus", persona: "Kamu mahasiswa yang lagi cari kerja sampingan.",
+    id: "loker", title: "Tawaran kerja yang terlalu bagus", persona: "Kamu mahasiswa yang lagi cari kerja sampingan.", contact: "Admin Karya Digital",
     fact: "Penipuan lowongan kerja tercatat 23.469 laporan di IASC (data Januari 2026), termasuk modus yang paling banyak dilaporkan.",
     factUrl: "https://keuangan.kontan.co.id/news/hingga-14-januari-2026-kerugian-masyarakat-akibat-penipuan-scam-rp-91-triliun",
     start: "n1",
@@ -27,7 +28,7 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
-    id: "kurir", title: "Paket yang tidak kamu ingat", persona: "Kamu baru belanja online minggu lalu.",
+    id: "kurir", title: "Paket yang tidak kamu ingat", persona: "Kamu baru belanja online minggu lalu.", contact: "Kurir Ekspedisi",
     fact: "OJK mencatat penipuan APK lewat WhatsApp sebagai salah satu modus penipuan keuangan yang perlu diwaspadai.",
     factUrl: "https://brida.bulelengkab.go.id/informasi/download/67_pengenalan-ojk-dan-waspada-pinjaman-online-serta-bijak-atur-keuangan_2026-04-30-15-44-53.pdf",
     start: "n1",
@@ -47,7 +48,7 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
-    id: "teman", title: "Teman yang tiba-tiba minta transfer", persona: "Kamu dapat pesan dari nomor yang tidak tersimpan.",
+    id: "teman", title: "Teman yang tiba-tiba minta transfer", persona: "Kamu dapat pesan dari nomor yang tidak tersimpan.", contact: "Rani (nomor baru)",
     fact: "Penipuan lewat media sosial tercatat 19.983 laporan di IASC (data Januari 2026).",
     factUrl: "https://keuangan.kontan.co.id/news/hingga-14-januari-2026-kerugian-masyarakat-akibat-penipuan-scam-rp-91-triliun",
     start: "n1",
@@ -67,7 +68,7 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
-    id: "pinjol", title: "Pinjaman cair 10 menit", persona: "Kamu butuh uang cepat untuk bayar kos dan tidak punya banyak pilihan.",
+    id: "pinjol", title: "Pinjaman cair 10 menit", persona: "Kamu butuh uang cepat untuk bayar kos dan tidak punya banyak pilihan.", contact: "PinjamCepat Nusa",
     fact: "Antara Januari dan Juni 2026, OJK menerima 19.169 pengaduan pinjaman online ilegal dan 2.878 pengaduan investasi ilegal.",
     factUrl: "https://keuangan.kontan.co.id/news/satgas-pasti-hentikan-951-pinjol-ilegal-dan-238-investasi-ilegal-per-juni-2026",
     start: "n1",
@@ -90,7 +91,7 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
-    id: "investasi", title: "Ajakan investasi dari teman lama", persona: "Kamu orang tua yang baru pensiun dan ingin tabunganmu berkembang.", audience: "Sudut pandang orang tua",
+    id: "investasi", title: "Ajakan investasi dari teman lama", persona: "Kamu orang tua yang baru pensiun dan ingin tabunganmu berkembang.", contact: "Bu Ratna", audience: "Sudut pandang orang tua",
     fact: "Antara Januari dan Juni 2026, OJK menerima 2.878 pengaduan investasi ilegal, selain 19.169 pengaduan pinjol ilegal.",
     factUrl: "https://keuangan.kontan.co.id/news/satgas-pasti-hentikan-951-pinjol-ilegal-dan-238-investasi-ilegal-per-juni-2026",
     start: "n1",
@@ -118,7 +119,7 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
-    id: "lovescam", title: "Teman baru yang terasa pas banget", persona: "Kamu baru kenal seseorang lewat media sosial dua minggu lalu.",
+    id: "lovescam", title: "Teman baru yang terasa pas banget", persona: "Kamu baru kenal seseorang lewat media sosial dua minggu lalu.", contact: "Daniel",
     fact: "OJK mencantumkan love scam sebagai salah satu modus penipuan yang memanfaatkan rasa kesepian korban.",
     factUrl: "https://ojk.go.id/id/berita-dan-kegiatan/info-terkini/Documents/Pages/Satgas-PASTI-Blokir-507-Aktivitas-dan-Entitas-Keuangan-Ilegal-Minta-Masyarakat-Waspadai-Penipuan-yang-Semakin-Marak/Satgas%20PASTI%20Blokir%20507%20Aktivitas%20dan%20Entitas%20Keuangan%20Ilegal%20Minta%20Masyarakat%20Waspadai%20Penipuan%20yang%20Semakin%20Marak.pdf",
     start: "n1",

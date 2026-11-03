@@ -23,6 +23,12 @@ struct RuleDef {
     any_of: Vec<String>,
     #[serde(default)]
     also_requires: Vec<String>,
+    /// Pola penyangkalan di depan temuan, misalnya "jangan berikan kode OTP". Temuan seperti itu diabaikan.
+    #[serde(default)]
+    unless: Vec<String>,
+    /// Pola penyangkalan setelah temuan, misalnya "pihak bank tidak pernah meminta".
+    #[serde(default)]
+    unless_after: Vec<String>,
 }
 #[derive(Deserialize)]
 struct ComboDef {
@@ -41,6 +47,8 @@ struct Compiled {
     def: RuleDef,
     any: Vec<Regex>,
     also: Vec<Regex>,
+    unless: Vec<Regex>,
+    unless_after: Vec<Regex>,
 }
 struct Engine {
     rules: Vec<Compiled>,
@@ -65,11 +73,25 @@ fn engine() -> &'static Engine {
             .map(|def| {
                 let any: Vec<Regex> = def.any_of.iter().map(|p| build(p)).collect();
                 let also: Vec<Regex> = def.also_requires.iter().map(|p| build(p)).collect();
-                Compiled { def, any, also }
+                let unless: Vec<Regex> = def.unless.iter().map(|p| build(p)).collect();
+                let unless_after: Vec<Regex> = def.unless_after.iter().map(|p| build(p)).collect();
+                Compiled { def, any, also, unless, unless_after }
             })
             .collect();
         Engine { rules, combos: set.combos, brands: set.brands }
     })
+}
+
+/// Apakah temuan ini sebenarnya kalimat penyangkalan (imbauan keamanan, bukan permintaan)?
+fn negated(r: &Compiled, text: &str, s: usize, e: usize) -> bool {
+    if r.unless.is_empty() && r.unless_after.is_empty() {
+        return false;
+    }
+    let pre = &text[..s];
+    let pre = &pre[pre.char_indices().rev().nth(79).map(|(i, _)| i).unwrap_or(0)..];
+    let post = &text[e..];
+    let post = &post[..post.char_indices().nth(60).map(|(i, _)| i).unwrap_or(post.len())];
+    r.unless.iter().any(|re| re.is_match(pre)) || r.unless_after.iter().any(|re| re.is_match(post))
 }
 
 #[derive(Serialize, Clone)]
@@ -106,7 +128,12 @@ pub fn analyze_text(input: &str) -> Analysis {
             continue;
         }
         // Satu aturan dihitung sekali per teks (tidak ada double count).
-        let first = r.any.iter().filter_map(|re| re.find(&norm.text)).min_by_key(|m| m.start());
+        let first = r
+            .any
+            .iter()
+            .flat_map(|re| re.find_iter(&norm.text))
+            .filter(|m| !negated(r, &norm.text, m.start(), m.end()))
+            .min_by_key(|m| m.start());
         if let Some(m) = first {
             let si = norm.starts.partition_point(|&b| b < m.start());
             let ei = norm.starts.partition_point(|&b| b < m.end());

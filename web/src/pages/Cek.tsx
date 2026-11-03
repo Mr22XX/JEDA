@@ -2,12 +2,13 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { analyze, analyzeLink, type Analysis, type LinkParts } from "../engine";
-import { SAMPLES, LINK_SAMPLES, type Tab } from "../content";
+import { SAMPLES, LINK_SAMPLES, type Goto } from "../content";
 import Result from "../components/Result";
 import MessageBox from "../components/MessageBox";
 import LinkBox from "../components/LinkBox";
 import LinkPartsCard from "../components/LinkPartsCard";
 import FactStrip from "../components/FactStrip";
+import ThreeSteps from "../components/Threesteps";
 
 gsap.registerPlugin(useGSAP);
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -44,7 +45,7 @@ function Empty({ mode }: { mode: Mode }) {
   );
 }
 
-export default function Cek({ goto }: { goto: (t: Tab) => void }) {
+export default function Cek({ goto }: { goto: Goto }) {
   const [mode, setMode] = useState<Mode>("pesan");
   const [text, setText] = useState("");
   const [link, setLink] = useState("");
@@ -94,7 +95,8 @@ export default function Cek({ goto }: { goto: (t: Tab) => void }) {
 
   return (
     <div ref={root}>
-      <main className="mx-auto grid max-w-6xl gap-10 px-5 pb-20 pt-10 lg:grid-cols-2 lg:gap-14 lg:pt-16">
+      <section data-in="fade" className="mx-auto max-w-6xl px-5 pt-5"><ThreeSteps goto={goto} /></section>
+      <main className="mx-auto grid max-w-6xl gap-10 px-5 pb-12 pt-8 lg:grid-cols-2 lg:gap-14 lg:pt-14">
         <section>
           <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
             <span className="block overflow-hidden pb-1"><span data-in="line" className="block">Ragu sama pesan ini?</span></span>
@@ -117,12 +119,14 @@ export default function Cek({ goto }: { goto: (t: Tab) => void }) {
               : <LinkBox value={link} onChange={setLink} onSubmit={run} busy={busy} />}
           </div>
 
-          <div data-in="fade" className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted">{mode === "pesan" ? "Coba contoh fiktif:" : "Coba contoh tautan:"}</span>
-            {samples.map((s) => (
-              <button key={s.name} onClick={() => fill(s.text)}
-                className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-brand hover:text-brand active:translate-y-0">{s.name}</button>
-            ))}
+          <div data-in="fade" className="mt-4">
+            <p className="text-sm text-muted">{mode === "pesan" ? "Coba contoh fiktif:" : "Coba contoh tautan:"}</p>
+            <div className="-mx-5 mt-2 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+              {samples.map((s) => (
+                <button key={s.name} onClick={() => fill(s.text)}
+                  className="shrink-0 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold transition hover:border-brand hover:text-brand active:scale-95">{s.name}</button>
+              ))}
+            </div>
           </div>
 
           <p data-in="fade" className="mt-6 flex max-w-prose items-start gap-2 text-sm leading-relaxed text-muted">
@@ -133,7 +137,7 @@ export default function Cek({ goto }: { goto: (t: Tab) => void }) {
           </p>
         </section>
 
-        <section data-in="fade" ref={resultRef} aria-live="polite" className="scroll-mt-4 lg:sticky lg:top-8 lg:self-start">
+        <section data-in="fade" ref={resultRef} aria-live="polite" className="scroll-mt-20 lg:sticky lg:top-8 lg:self-start">
           {error ? (
             <div role="alert" className="rounded-3xl border border-tinggi bg-tinggi/10 p-5">
               <h2 className="font-bold text-tinggi">Belum bisa diperiksa</h2>
