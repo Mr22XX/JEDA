@@ -13,7 +13,7 @@ let loading: Promise<Mod> | null = null;
 function load() {
   loading ??= (async () => {
     const importer = Object.values(modules)[0];
-    if (!importer) throw new Error("Mesin analisis belum dibuild. Jalankan: npm run build:wasm");
+    if (!importer) throw new Error("ENGINE_NOT_BUILT");
     const m = (await importer()) as Mod;
     await m.default();
     return m;
@@ -27,6 +27,6 @@ export async function analyze(text: string): Promise<Analysis> {
 
 export async function analyzeLink(url: string): Promise<LinkAnalysis> {
   const m = await load();
-  if (typeof m.analyze_link !== "function") throw new Error("Mesin analisis belum diperbarui. Jalankan: npm run build:wasm");
+  if (typeof m.analyze_link !== "function") throw new Error("ENGINE_OUTDATED");
   return JSON.parse(m.analyze_link(url)) as LinkAnalysis;
 }

@@ -1,22 +1,18 @@
-import type { Goto } from "../content";
+import { useI18n } from "../i18n";
 
-const STEPS = [
-  { tab: "cek", title: "Kenali", text: "Cek pesan atau tautan yang janggal", n: "1" },
-  { tab: "latihan", title: "Belajar", text: "Latih insting lewat simulasi chat", n: "2" },
-  { tab: "darurat", title: "Bertindak", text: "Tahu langkah saat sudah terlanjur", n: "3" },
-] as const;
-
-export default function ThreeSteps({ goto }: { goto: Goto }) {
+/** Penjelasan alur, bukan tombol: menu sudah ada di navigasi. */
+export default function ThreeSteps() {
+  const { t } = useI18n();
+  const steps = t.steps.items;
   return (
-    <nav aria-label="Tiga fungsi JEDA" className="grid grid-cols-3 gap-2 sm:gap-3">
-      {STEPS.map((s) => (
-        <button key={s.tab} onClick={() => goto(s.tab)}
-          className="rounded-2xl border border-line bg-surface p-3 text-left transition hover:-translate-y-0.5 hover:border-brand sm:p-4">
-          <span className="flex size-6 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand" aria-hidden>{s.n}</span>
-          <span className="mt-2 block text-base font-extrabold sm:text-lg">{s.title}</span>
-          <span className="mt-0.5 block text-xs leading-snug text-muted sm:text-sm">{s.text}</span>
-        </button>
+    <ol aria-label={t.steps.label} className="mt-5 flex items-center gap-2 text-sm font-semibold text-muted">
+      {steps.map((s, i) => (
+        <li key={s} className="flex items-center gap-2">
+          <span className="flex size-5 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand" aria-hidden>{i + 1}</span>
+          {s}
+          {i < steps.length - 1 && <span className="ml-1 h-px w-5 bg-line" aria-hidden />}
+        </li>
       ))}
-    </nav>
+    </ol>
   );
 }

@@ -10,15 +10,15 @@ function taught(id: string): Set<string> {
 }
 
 /** Pilih skenario Latihan yang paling banyak menyentuh taktik yang ditemukan di hasil Cek (diberi bobot temuan). */
-export function recommend(r: Analysis): { id: string; title: string; tactics: string[] } | null {
+export function recommend(r: Analysis): { id: string; tactics: string[] } | null {
   const w: Record<string, number> = {};
   r.findings.forEach((f) => { w[f.tactic] = (w[f.tactic] ?? 0) + f.weight; });
-  let best: { id: string; title: string; tactics: string[]; score: number } | null = null;
+  let best: { id: string; tactics: string[]; score: number } | null = null;
   for (const sc of SCENARIOS) {
     const t = taught(sc.id);
     const shared = Object.keys(w).filter((x) => t.has(x));
     const score = shared.reduce((a, x) => a + w[x], 0);
-    if (score > 0 && (!best || score > best.score)) best = { id: sc.id, title: sc.title, tactics: shared, score };
+    if (score > 0 && (!best || score > best.score)) best = { id: sc.id, tactics: shared, score };
   }
-  return best && { id: best.id, title: best.title, tactics: best.tactics };
+  return best && { id: best.id, tactics: best.tactics };
 }
