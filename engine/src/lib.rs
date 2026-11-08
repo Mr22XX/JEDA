@@ -29,6 +29,10 @@ struct RuleDef {
     /// Pola penyangkalan setelah temuan, misalnya "pihak bank tidak pernah meminta".
     #[serde(default)]
     unless_after: Vec<String>,
+    /// Pola untuk teks "dirapatkan" (tanpa spasi dan tanda baca) supaya kata yang sengaja dipecah,
+    /// misalnya "KEME NAN GAN", tetap terbaca. Dipakai hanya bila pola biasa tidak menemukan apa pun.
+    #[serde(default)]
+    squeeze: Vec<String>,
 }
 #[derive(Deserialize)]
 struct ComboDef {
@@ -49,6 +53,7 @@ struct Compiled {
     also: Vec<Regex>,
     unless: Vec<Regex>,
     unless_after: Vec<Regex>,
+    sq: Vec<Regex>,
 }
 struct Engine {
     rules: Vec<Compiled>,
@@ -75,7 +80,8 @@ fn engine() -> &'static Engine {
                 let also: Vec<Regex> = def.also_requires.iter().map(|p| build(p)).collect();
                 let unless: Vec<Regex> = def.unless.iter().map(|p| build(p)).collect();
                 let unless_after: Vec<Regex> = def.unless_after.iter().map(|p| build(p)).collect();
-                Compiled { def, any, also, unless, unless_after }
+                let sq: Vec<Regex> = def.squeeze.iter().map(|p| build(p)).collect();
+                Compiled { def, any, also, unless, unless_after, sq }
             })
             .collect();
         Engine { rules, combos: set.combos, brands: set.brands }
@@ -121,6 +127,7 @@ pub fn analyze_text(input: &str) -> Analysis {
     let eng = engine();
     let units: Vec<u16> = text.encode_utf16().collect();
     let norm = norm::normalize(&text);
+    let sqz = norm::squeeze(&norm);
     let mut findings = Vec::new();
 
     for r in &eng.rules {
@@ -134,14 +141,24 @@ pub fn analyze_text(input: &str) -> Analysis {
             .flat_map(|re| re.find_iter(&norm.text))
             .filter(|m| !negated(r, &norm.text, m.start(), m.end()))
             .min_by_key(|m| m.start());
-        if let Some(m) = first {
-            let si = norm.starts.partition_point(|&b| b < m.start());
-            let ei = norm.starts.partition_point(|&b| b < m.end());
+        // Bila pola biasa tidak menemukan apa pun, coba teks rapat untuk kata yang dipecah-pecah.
+        let hit = match first {
+            Some(m) => Some((&norm, m.start(), m.end())),
+            None => r
+                .sq
+                .iter()
+                .flat_map(|re| re.find_iter(&sqz.text))
+                .min_by_key(|m| m.start())
+                .map(|m| (&sqz, m.start(), m.end())),
+        };
+        if let Some((n, ms, me)) = hit {
+            let si = n.starts.partition_point(|&b| b < ms);
+            let ei = n.starts.partition_point(|&b| b < me);
             if si >= ei {
                 continue;
             }
             // Petakan kembali ke posisi di teks asli supaya sorotan tepat.
-            let (start, end) = (norm.spans[si].0, norm.spans[ei - 1].1);
+            let (start, end) = (n.spans[si].0, n.spans[ei - 1].1);
             findings.push(Finding {
                 rule_id: r.def.id.clone(),
                 tactic: r.def.tactic.clone(),
@@ -278,5 +295,126 @@ mod tests {
     fn domain_resmi_tidak_ditandai() {
         let a = analyze_text("Info resmi ada di https://www.bca.co.id dan https://www.bankmandiri.co.id");
         assert!(a.findings.iter().all(|f| !f.rule_id.starts_with('D')));
+    }
+
+    // --- Bahasa Inggris: pastikan aturan E01-E35 benar-benar ikut terbuild ke WASM ---
+    #[test]
+    fn inggris_aturan_ikut_terbuild() {
+        let a = analyze_text("Act now! Send me your OTP code immediately.");
+        assert!(a.findings.iter().any(|f| f.rule_id.starts_with('E')), "aturan Inggris tidak aktif: build ulang WASM");
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn inggris_hadiah_dan_biaya() {
+        let a = analyze_text("Congratulations! You have been selected as the winner of a $5,000 gift card. Pay a small processing fee to claim your prize.");
+        assert!(a.findings.iter().any(|f| f.rule_id == "E13"));
+        assert!(a.findings.iter().any(|f| f.rule_id == "E08"));
+        assert!(a.score >= 4);
+    }
+    #[test]
+    fn inggris_akun_ditangguhkan_dan_otp() {
+        let a = analyze_text("URGENT: Your bank account has been suspended. Verify now and send your one-time password to reactivate.");
+        assert_eq!(a.level, "tinggi");
+        assert!(a.combos.iter().any(|c| c.contains("OTP")));
+    }
+    #[test]
+    fn inggris_paket_gagal_dengan_biaya() {
+        let a = analyze_text("Your package could not be delivered. Please pay a $2.99 fee at http://post-track.example to reschedule delivery.");
+        assert!(a.findings.iter().any(|f| f.rule_id == "E24"));
+        assert!(a.score >= 4);
+    }
+    #[test]
+    fn inggris_tagihan_tak_terbayar() {
+        let a = analyze_text("You have an unpaid toll. Pay immediately to avoid a fine: http://toll-pay.example");
+        assert!(a.findings.iter().any(|f| f.rule_id == "E24"));
+    }
+    #[test]
+    fn inggris_pesan_sah_tidak_ditandai() {
+        for t in [
+            "Hi team, the meeting is moved to 3 pm tomorrow. Please bring your laptop.",
+            "Hey, are we still on for lunch tomorrow at noon?",
+            "Your OTP is 482913. Do not share this code with anyone.",
+            "Never share your OTP with anyone. Our bank will never ask for it.",
+        ] {
+            assert_eq!(analyze_text(t).score, 0, "salah tandai: {t}");
+        }
+    }
+
+    // --- Judi online, saldo palsu, dan teks yang sengaja disamarkan ---
+    fn ada(a: &Analysis, id: &str) -> bool {
+        a.findings.iter().any(|f| f.rule_id == id)
+    }
+    #[test]
+    fn judi_dengan_tanda_sisipan_dan_domain() {
+        let a = analyze_text("Cuma mai'n disini yg past'i GACO'R\nModa'l 50k doang udah bisa J'P\nLlNK : maxasia777.org/ModalMinimal");
+        assert!(ada(&a, "J01") && ada(&a, "J03") && ada(&a, "J07") && ada(&a, "J13"));
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn judi_jarang_wede_dan_garansi() {
+        let a = analyze_text("JARANG WEDE BOSSKU?\nJOIN LANGSUNG LINK DIBAWAH INI\nAK'UN ANDA KITA BANTU JEPE 100%\n1X DEPO DlJAMIN W3'DE BERKALI KALI\nGAR'ANSl KEMENANGAN 100%\ns.id/pELzZ");
+        for id in ["J02", "J05", "J06", "J07", "R27"] {
+            assert!(ada(&a, id), "harus terdeteksi: {id}");
+        }
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn judi_kata_dipecah_dengan_garis_miring_dan_spasi() {
+        let a = analyze_text("AKUN GAC/OR JEPE 100%\n1X DE/PO DIJAM/IN WEDE BERKALI-KALI!\nGARANSI KEME NAN GAN 100%\ns.id/ZmBvk");
+        assert!(ada(&a, "J01") && ada(&a, "J02") && ada(&a, "J05") && ada(&a, "J07"));
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn judi_wd_jp_dengan_spasi_dan_koma() {
+        let a = analyze_text("Situs terbesar di Indo, yang pasti ,W  D, Cepat dan aman https://wde.la/ODN41\nPasti ,J P,");
+        assert!(ada(&a, "J03") && ada(&a, "J13"));
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn judi_zeus_pengali_dan_vokal_dibuang() {
+        let a = analyze_text("pr'omo akhir bulan telah datang!\nrasakan sensasi z3'u5 x5OO\nj-pe smakin bsar hnya dgn mdl receh\nsiap menang besar skrg ??\ngas dftr & main di : ln.run/iTKtc");
+        assert!(ada(&a, "J07") && ada(&a, "J09") && ada(&a, "J10") && ada(&a, "R27"));
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn judi_saldo_gratis_dan_chip_otomatis() {
+        let a = analyze_text("A,da 5al,d0 25,k l,gi");
+        assert!(ada(&a, "J08"));
+        assert!(analyze_text("c,hi,p au-t,o m-suk").findings.iter().any(|f| f.rule_id == "J09"));
+        let b = analyze_text("KAK AK'U KSH KM SAL'DO 100K UTK M'A1N\nID BARU WAJIB D1KASIH MENANG\nSL'0T P'GSOFT BAGI2 RE'JEKI\nM'AHJONG 5 MENIT W'D 2JT\nD'P&KLA1M: https://ln.run/ploFr");
+        assert!(ada(&b, "J05") && ada(&b, "J08") && ada(&b, "J10"));
+        assert_eq!(b.level, "tinggi");
+    }
+    #[test]
+    fn judi_huruf_unicode_bergaya() {
+        for t in ["\u{ff27}\u{ff21}\u{ff23}\u{ff2f}\u{ff32} hari ini", "\u{1d5ac}\u{1d5a0}\u{1d5b7}\u{1d5b6}\u{1d5a8}\u{1d5ad} hari ini", "\u{0262}\u{1d00}\u{1d04}\u{1d0f}\u{0280} hari ini", "\u{24bc}\u{24d0}\u{24d2}\u{24de}\u{24e1} hari ini"] {
+            assert!(ada(&analyze_text(t), "J01"), "huruf bergaya lolos: {t}");
+        }
+    }
+    #[test]
+    fn saldo_palsu_dengan_tautan() {
+        let a = analyze_text("ID:81377***302  Deposit Anda sebesar 1 juta telah dikreditkan ke akun Anda. Silakan periksa saldo Anda sesegera mungkin. ln.run/W-eKv?X3");
+        assert!(ada(&a, "N01") && ada(&a, "N04") && ada(&a, "N05"));
+        assert_eq!(a.level, "tinggi");
+        let b = analyze_text("5302  Kakak akun Anda 1 ju'ta anda bisa memilih untuk menarik atau melanjutkan.  https://ln.run/dZ5wW?fBqc");
+        assert!(ada(&b, "N03"));
+        assert_eq!(b.level, "tinggi");
+        let c = analyze_text("Rp1.725.000 udah ditransfer ke dompetmu. Verifikasi maksimal 1 jam.\nhttps://ln.run/6f8XV");
+        assert!(ada(&c, "N01") && ada(&c, "N02"));
+        let d = analyze_text("hallo kak, 081377845302 , segera d ambil ya\nhttps://s.id/prodg1");
+        assert!(ada(&d, "N06") && ada(&d, "N07"));
+    }
+    #[test]
+    fn pesan_biasa_dengan_kata_mirip_tidak_ditandai() {
+        for t in [
+            "Slot praktikum hari Selasa masih tersisa, silakan daftar di portal kampus.",
+            "Bu, ini aku Dina. Dana praktikum 50k sudah aku kirim ke ibu bendahara.",
+            "Saldo rekening kamu sudah masuk ya, tadi aku transfer Rp150.000 buat patungan.",
+            "Rp1.200.000 gaji bulan ini sudah masuk, alhamdulillah. Nanti kita makan-makan.",
+            "Don't forget the party tonight, it's at Rina's house. You've got the cake right?",
+            "Kode pesananmu 88123. Driver sedang menuju lokasi, jangan bagikan kode ini ke siapa pun.",
+        ] {
+            assert_eq!(analyze_text(t).score, 0, "salah tandai: {t}");
+        }
     }
 }

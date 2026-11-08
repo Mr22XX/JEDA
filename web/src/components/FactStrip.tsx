@@ -13,7 +13,7 @@ export default function FactStrip() {
             <p className="mt-2 text-sm leading-snug">{s.label}</p>
             <p className="mt-3 text-xs text-muted">
               {s.period} ·{" "}
-              <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline decoration-line underline-offset-2 hover:text-ink">{s.src}</a>
+              <a href={s.url} target="_blank" rel="noopener noreferrer" className="lnk">{s.src}</a>
             </p>
           </div>
         ))}

@@ -19,7 +19,7 @@ export default function LinkBox({ value, onChange, onSubmit, onClear, busy, samp
   function clear() { setHint(""); onChange(""); onClear(); ref.current?.focus(); }
 
   return (
-    <div className="rounded-3xl border border-line bg-surface shadow-xl shadow-brand/10 transition focus-within:border-transparent focus-within:shadow-2xl focus-within:shadow-brand/25">
+    <div className="rounded-3xl border-2 border-edge bg-surface shadow-xl shadow-brand/10 transition focus-within:border-transparent focus-within:shadow-2xl focus-within:shadow-brand/25">
       <div className="flex h-14 items-center justify-between gap-3 px-5">
         <label htmlFor="lnk" className="flex items-center gap-2 text-sm font-semibold">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-brand">
@@ -28,7 +28,7 @@ export default function LinkBox({ value, onChange, onSubmit, onClear, busy, samp
           {t.box.linkLabel}
         </label>
         <button type="button" onClick={value ? clear : paste}
-          className="min-w-[4.5rem] rounded-full border border-line px-3 py-1 text-center text-sm font-semibold text-muted transition hover:border-brand hover:text-brand">
+          className="btn-2 btn-sm min-w-[5rem]">
           {value ? t.box.clear : t.box.paste}
         </button>
       </div>
@@ -43,7 +43,7 @@ export default function LinkBox({ value, onChange, onSubmit, onClear, busy, samp
         <span className="shrink-0 text-sm text-muted">{t.box.tryExamples}</span>
         {samples.map((s) => (
           <button key={s.name} type="button" onClick={() => onChange(s.text)}
-            className="shrink-0 rounded-full bg-brand/10 px-3 py-1.5 text-sm font-semibold text-brand transition hover:bg-brand/20 active:scale-95">{s.name}</button>
+            className="chip shrink-0">{s.name}</button>
         ))}
       </div>
       <div className="flex h-16 items-center justify-between gap-3 border-t border-line px-5">

@@ -2,7 +2,7 @@
 
 :root {
   --paper: #f5f4ff; --surface: #ffffff; --ink: #15123b; --muted: #5e5a8a; --line: #e1defa;
-  --brand: #5b3fff; --on-brand: #ffffff;
+  --brand: #5b3fff; --on-brand: #ffffff; --edge: #7f78c8;
   --calm: #0e9f7e; --ringan: #c98200; --sedang: #e5640f; --tinggi: #e11d48;
   color-scheme: light;
 }
@@ -10,19 +10,19 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22;
+    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
     --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22;
+    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
     --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
 }
 @theme inline {
   --color-paper: var(--paper); --color-surface: var(--surface); --color-ink: var(--ink);
   --color-muted: var(--muted); --color-line: var(--line); --color-brand: var(--brand);
-  --color-on-brand: var(--on-brand); --color-calm: var(--calm); --color-ringan: var(--ringan);
+  --color-on-brand: var(--on-brand); --color-edge: var(--edge); --color-calm: var(--calm); --color-ringan: var(--ringan);
   --color-sedang: var(--sedang); --color-tinggi: var(--tinggi);
   --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
 }
@@ -32,6 +32,33 @@ body {
     radial-gradient(50rem 28rem at 85% -5%, color-mix(in srgb, var(--brand) 16%, transparent), transparent),
     radial-gradient(40rem 24rem at -5% 35%, color-mix(in srgb, var(--calm) 10%, transparent), transparent),
     var(--paper);
+}
+/* Kontrol interaktif: batasnya memakai --edge (kontras sekitar 3,9:1 di mode terang, 4,3:1 di mode gelap), bukan --line yang hampir tak terlihat. */
+@layer components {
+  .btn-2, .btn-back {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem;
+    padding: .5rem 1.1rem; border-radius: .75rem; font-weight: 700; line-height: 1.2; text-align: left;
+    background: var(--surface); transition: background-color .15s, border-color .15s, transform .15s;
+  }
+  .btn-2 { border: 2px solid var(--brand); color: var(--brand); }
+  .btn-2:hover { background: color-mix(in srgb, var(--brand) 14%, var(--surface)); }
+  .btn-2.is-danger { border-color: var(--tinggi); color: var(--tinggi); }
+  .btn-2.is-danger:hover { background: color-mix(in srgb, var(--tinggi) 14%, var(--surface)); }
+  .btn-2:active, .btn-back:active { transform: scale(.98); }
+  .btn-sm { min-height: 2.25rem; padding: .25rem .9rem; border-radius: 9999px; font-size: .875rem; }
+  .btn-back { border: 2px solid var(--edge); color: var(--ink); border-radius: 9999px; padding: .4rem 1rem .4rem .75rem; font-size: .9375rem; }
+  .btn-back:hover { border-color: var(--brand); color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, var(--surface)); }
+  .chip {
+    border: 1.5px solid color-mix(in srgb, var(--brand) 55%, transparent); background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+    color: var(--brand); font-weight: 700; border-radius: 9999px; padding: .375rem .85rem; font-size: .875rem; transition: background-color .15s, transform .15s;
+  }
+  .chip:hover { background: color-mix(in srgb, var(--brand) 22%, var(--surface)); }
+  .chip:active { transform: scale(.95); }
+  .lnk { color: var(--brand); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .lnk:hover { text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+  .arrow { transition: transform .15s; }
+  .btn-2:hover .arrow-r, button:hover > .arrow-r, a:hover > .arrow-r { transform: translateX(3px); }
+  .btn-back:hover .arrow-l { transform: translateX(-3px); }
 }
 :focus-visible:not(textarea) { outline: 3px solid var(--brand); outline-offset: 2px; }
 textarea:focus, textarea:focus-visible, #lnk:focus, #lnk:focus-visible { outline: none; }

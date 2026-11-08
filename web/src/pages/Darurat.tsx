@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CHECKED } from "../data/facts";
 import { useI18n } from "../i18n";
 import ShareCard from "../components/ShareCard";
+import { Arrow, External } from "../components/Icons";
 
 export default function Darurat() {
   const { t, situations, channels } = useI18n();
@@ -23,7 +24,7 @@ export default function Darurat() {
         <p className="mt-4 max-w-prose text-lg text-muted">{D.lead}</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {situations.map((x) => (
-            <button key={x.id} onClick={() => setSid(x.id)} className="rounded-2xl border border-line bg-surface p-5 text-left transition hover:-translate-y-0.5 hover:border-tinggi">
+            <button key={x.id} onClick={() => setSid(x.id)} className="rounded-2xl border-2 border-edge bg-surface p-5 text-left transition hover:-translate-y-0.5 hover:border-tinggi">
               <span className="text-lg font-bold leading-snug">{x.title}</span>
               <span className="mt-2 block text-sm text-muted">{x.desc}</span>
             </button>
@@ -42,7 +43,7 @@ export default function Darurat() {
           const k = `${s.id}:${prefix}${i}`;
           return (
             <li key={k}>
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface p-4">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-edge bg-surface p-4">
                 <input type="checkbox" checked={!!checked[k]} onChange={() => setChecked((c) => ({ ...c, [k]: !c[k] }))} className="mt-1 size-5 shrink-0 accent-[var(--brand)]" />
                 <span className={`leading-relaxed ${checked[k] ? "text-muted line-through" : ""}`}>{txt}</span>
               </label>
@@ -55,7 +56,7 @@ export default function Darurat() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-10 pt-6 sm:pt-12">
-      <button onClick={() => setSid(null)} className="text-sm font-semibold text-muted hover:text-ink">{D.change}</button>
+      <button type="button" onClick={() => setSid(null)} className="btn-back"><Arrow dir="left" />{D.change}</button>
       <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight">{s.title}</h1>
       {group(D.now, s.now, "n")}
       {group(D.after, s.after, "a")}
@@ -68,7 +69,7 @@ export default function Darurat() {
               <p className="font-bold">{c.name}</p>
               <p className="mt-1 text-sm text-muted">{c.use}</p>
               <p className="mt-3 flex flex-wrap gap-2">
-                {c.links.map((l) => <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="rounded-full border border-line px-3 py-1 text-sm font-semibold hover:border-brand hover:text-brand">{l.label}</a>)}
+                {c.links.map((l) => <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="btn-2 btn-sm">{l.label}{l.href.startsWith("http") && <External />}</a>)}
               </p>
             </div>
           ); })}
@@ -82,7 +83,7 @@ export default function Darurat() {
         <p className="mt-3 rounded-xl bg-surface p-4 leading-relaxed">{s.warn}</p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
           <ShareCard text={s.warn} />
-          <button onClick={() => copy(s.warn)} className="text-sm font-semibold text-brand hover:underline">{copied ? D.copied : D.copy}</button>
+          <button type="button" onClick={() => copy(s.warn)} className="btn-2">{copied ? D.copied : D.copy}</button>
         </div>
       </section>
     </main>

@@ -29,8 +29,11 @@ const HOSTING: &[&str] = &[
 const USER_CONTENT: &[&str] = &["forms.gle", "sites.google.com", "linktr.ee", "bio.link"];
 const CRED_KEYS: &[&str] = &["password", "passwd", "pwd", "pass", "otp", "pin", "cvv", "cardnumber", "card", "ssn"];
 const CHEAP_TLDS: &[&str] = &["xyz", "top", "click", "icu", "site", "online", "vip", "cc", "buzz", "cfd", "sbs", "monster"];
-const SHORTENERS: &[&str] = &["bit.ly", "tinyurl.com", "cutt.ly", "s.id", "t.ly", "is.gd", "rb.gy", "shorturl.at", "ow.ly"];
+const SHORTENERS: &[&str] = &["bit.ly", "tinyurl.com", "cutt.ly", "s.id", "t.ly", "is.gd", "rb.gy", "shorturl.at", "ow.ly", "ln.run", "lnkl.st", "rebrand.ly", "v.gd", "clck.ru", "bitly.ws", "shorturl.gg"];
 const BAIT: &[&str] = &["login", "masuk", "verifikasi", "verify", "secure", "akun", "account", "update", "perbarui", "konfirmasi", "klaim", "claim", "hadiah", "bonus", "promo", "undian", "pencairan", "reset"];
+/// Kata khas situs judi online dan angka merek yang sering menempel di belakang nama situs judi.
+const GAMBLE: &[&str] = &["gacor", "maxwin", "togel", "judol", "casino", "kasino", "sbobet", "jepe", "wede", "scatter", "mahjong", "jackpot", "baccarat", "sicbo"];
+const GAMBLE_NUM: &[&str] = &["77", "88", "138", "168", "188", "303", "777", "888", "999"];
 const BAD_EXT: &[&str] = &["apk", "exe", "msi", "scr", "bat", "cmd", "vbs", "jar"];
 
 type R = (usize, usize);
@@ -287,6 +290,18 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         if first_label.matches('-').count() >= 3 || first_label.chars().filter(|c| c.is_ascii_digit()).count() >= 4 {
             add(&s, &mut out, "L07", 2, registrable, "Domain utama berisi banyak tanda hubung atau angka, pola yang sering muncul pada situs tiruan.");
         }
+        {
+            // Nama domain bernuansa judi online ("gacor88", "maxasia777").
+            let raw = first_label.to_lowercase();
+            let folded = domain::fold(first_label);
+            let word = GAMBLE.iter().any(|g| raw.contains(g) || folded.contains(g)) || (raw.contains("slot") && raw.chars().any(|c| c.is_ascii_digit()));
+            let digits_tail = raw.chars().filter(|c| c.is_alphabetic()).count() >= 3 && GAMBLE_NUM.iter().any(|d| raw.ends_with(d));
+            if word {
+                add(&s, &mut out, "L22", 4, registrable, "Nama domain memuat istilah khas situs judi online. Judi online ilegal di Indonesia dan situs seperti ini sering menjebak korban agar terus menyetor.");
+            } else if digits_tail {
+                add(&s, &mut out, "L23", 2, registrable, "Nama domain berakhiran angka yang lazim dipakai situs judi online, misalnya 777 atau 88. Pola ini tidak selalu berbahaya, tetapi perlu dicek.");
+            }
+        }
         if let Some((r, _)) = tokens(host, p.host.0).into_iter().find(|(_, t)| BAIT.contains(&t.as_str())) {
             add(&s, &mut out, "L10", 2, r, "Nama domain memuat kata pancingan seperti login atau verifikasi. Situs resmi biasanya tidak menaruhnya di nama domain.");
         }
@@ -425,6 +440,13 @@ mod tests {
         assert!(has(&run("https://forms.gle/abc"), "L21"));
         assert!(has(&run("https://docs.google.com/forms/d/x"), "L21"));
         assert!(!has(&run("https://docs.google.com/document/d/x"), "L21"));
+    }
+    #[test]
+    fn domain_judi_dan_pemendek_baru() {
+        assert!(has(&run("https://slot-gacor88.xyz/"), "L22"));
+        assert!(has(&run("https://maxasia777.org/ModalMinimal"), "L23"));
+        assert!(has(&run("https://ln.run/dZ5wW?fBqc"), "L04"));
+        assert!(!has(&run("https://www.bca.co.id/"), "L22"));
     }
     #[test]
     fn akhiran_dua_tingkat_luar_negeri() {

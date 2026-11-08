@@ -108,10 +108,10 @@ export default function Cek({ goto }: { goto: Goto }) {
           <p data-in="fade" className="mt-5 max-w-prose text-lg leading-relaxed text-muted">{t.cek.lead}</p>
           <div data-in="fade"><ThreeSteps /></div>
 
-          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-7 inline-flex rounded-full border border-line bg-surface p-1">
+          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-7 inline-flex rounded-full border-2 border-edge bg-surface p-1">
             {([["pesan", t.cek.modePesan], ["tautan", t.cek.modeTautan]] as const).map(([m, l]) => (
               <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${mode === m ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{l}</button>
+                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${mode === m ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{l}</button>
             ))}
           </div>
 

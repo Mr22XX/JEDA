@@ -5,6 +5,7 @@ import type { Analysis, Finding } from "../engine";
 import { LEVELS, type Goto } from "../content";
 import { useI18n } from "../i18n";
 import { recommend } from "../lib/recommend";
+import { Arrow } from "./Icons";
 
 gsap.registerPlugin(useGSAP);
 
@@ -103,11 +104,11 @@ export default function Result({ result, text, mode = "pesan", onGoto }: Props) 
           <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
             {lt.steps.map((x) => <li key={x}>{x}</li>)}
           </ul>
-          {/* Tautan teks, bukan tombol besar: hanya muncul bila relevan */}
+          {/* Tombol berkontur dengan panah: hanya muncul bila relevan */}
           {onGoto && result.level !== "tidak_ditemukan" && (
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-brand/20 pt-3 text-sm font-semibold">
-              <button onClick={() => onGoto("darurat")} className="text-left text-tinggi hover:underline">{t.result.toEmergency}</button>
-              {rec && <button onClick={() => onGoto("latihan", rec.id)} className="text-left text-brand hover:underline">{t.result.toPractice(recTitle)}</button>}
+            <div className="mt-4 flex flex-col gap-2.5 border-t border-brand/20 pt-4 sm:flex-row sm:flex-wrap">
+              <button type="button" onClick={() => onGoto("darurat")} className="btn-2 is-danger justify-between sm:justify-center">{t.result.toEmergency}<Arrow dir="right" /></button>
+              {rec && <button type="button" onClick={() => onGoto("latihan", rec.id)} className="btn-2 justify-between sm:justify-center">{t.result.toPractice(recTitle)}<Arrow dir="right" /></button>}
             </div>
           )}
         </div>

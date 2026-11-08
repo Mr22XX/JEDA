@@ -35,7 +35,7 @@ export const ID = {
     fromMsg: "Hasil pemeriksaan pesan", fromLink: "Hasil pemeriksaan tautan",
     meterAria: (x: string) => `Tingkat kewaspadaan: ${x}`, meterLabels: ["Tidak ada tanda", "Ringan", "Sedang", "Tinggi"],
     marked: "Bagian yang kami tandai", combos: "Pola gabungan", whatToDo: "Yang bisa kamu lakukan",
-    toEmergency: "Sudah terlanjur? Buka langkah darurat →", toPractice: (x: string) => `Latih pola ini: ${x} →`,
+    toEmergency: "Sudah terlanjur? Buka langkah darurat", toPractice: (x: string) => `Latih pola ini: ${x}`,
     disclaimerMsg: "Hasil ini berbasis pola kata dan bukan jaminan. Tetap verifikasi lewat kanal resmi.",
     disclaimerLink: "Pemeriksaan ini hanya membaca bentuk tautan. Situsnya tidak dibuka, jadi isi halaman, umur domain, dan reputasinya tidak diperiksa. Hasil bukan jaminan.",
     linkNote: "Bentuk tautan ini tidak menunjukkan tanda bahaya yang kami kenali. Kami tidak membuka situsnya, jadi isi halaman dan reputasinya belum diperiksa.",
@@ -49,7 +49,7 @@ export const ID = {
   tactics: {
     "URGENSI": "Urgensi", "OTORITAS PALSU": "Otoritas palsu", "IMING-IMING": "Iming-iming", "RASA TAKUT": "Rasa takut",
     "DATA RAHASIA": "Data rahasia", "BIAYA DI MUKA": "Biaya di muka", "ISOLASI": "Isolasi", "KEDEKATAN PALSU": "Kedekatan palsu",
-    "TAUTAN MENCURIGAKAN": "Tautan mencurigakan",
+    "TAUTAN MENCURIGAKAN": "Tautan mencurigakan", "JUDI ONLINE": "Judi online",
   } as Record<string, string>,
   parts: {
     title: "Cara membaca tautan ini", main: "Domain utama (perkiraan)", mainHint: "Inilah yang menentukan siapa pemilik situs.",
@@ -61,13 +61,13 @@ export const ID = {
   facts: { title: "Kenapa ini penting", sub: "Angka dari laporan nyata masyarakat Indonesia, bukan simulasi." },
   latihan: {
     h1: "Latih insting kamu.", lead: "Pilih satu situasi, lalu tentukan balasanmu. Setiap pilihan langsung diberi penjelasan taktik apa yang dipakai penipu. Semua nama dan tautan di simulasi ini fiktif.",
-    start: "Mulai simulasi", done: "✓ Selesai. Main lagi", back: "← Semua skenario", source: "Sumber", chatAria: "Simulasi chat", simNote: "Simulasi, semua fiktif",
+    start: "Mulai simulasi", done: "✓ Selesai. Main lagi", back: "Semua skenario", source: "Sumber", chatAria: "Simulasi chat", simNote: "Simulasi, semua fiktif",
     pick: "Pilih balasanmu", right: "Pilihan yang tepat", wrong: "Hati-hati, ini jebakan", next: "Lanjut",
     score: (g: number, n: number) => `${g} dari ${n} pilihan tepat`, tacticsShown: "Taktik yang muncul:", another: "Coba skenario lain", again: "Ulangi", toEmergency: "Buka langkah darurat",
   },
   darurat: {
     h1: "Sudah terlanjur? Tenang, kita atur langkahnya.", lead: "Pilih yang paling mirip dengan situasimu. Kamu akan mendapat urutan langkah dan kanal pelaporan resmi. Makin cepat bertindak, makin baik.",
-    disclaimer: "Panduan umum, bukan nasihat hukum atau keuangan. Kanal dicek terakhir {date}.", change: "← Ganti situasi", now: "Lakukan sekarang", after: "Setelah itu", where: "Ke mana melapor",
+    disclaimer: "Panduan umum, bukan nasihat hukum atau keuangan. Kanal dicek terakhir {date}.", change: "Ganti situasi", now: "Lakukan sekarang", after: "Setelah itu", where: "Ke mana melapor",
     sources: "Sumber: rilis OJK, Komdigi, dan Polri. Dicek terakhir {date}. Kanal bisa berubah, pastikan lewat situs resmi.",
     warnTitle: "Peringatkan teman dan keluarga", warnHint: "Salin pesan ini dan kirim ke grup. Jangan menyertakan data pribadi korban.",
     share: "Bagikan sebagai gambar", copy: "Salin teks saja", copied: "Tersalin", shareTitle: "Peringatan dari JEDA",
@@ -129,7 +129,7 @@ export const EN: Dict = {
     fromMsg: "Message check result", fromLink: "Link check result",
     meterAria: (x: string) => `Caution level: ${x}`, meterLabels: ["No signs", "Low", "Medium", "High"],
     marked: "Parts we flagged", combos: "Combined pattern", whatToDo: "What you can do",
-    toEmergency: "Already happened? Open emergency steps →", toPractice: (x: string) => `Practice this pattern: ${x} →`,
+    toEmergency: "Already happened? Open emergency steps", toPractice: (x: string) => `Practice this pattern: ${x}`,
     disclaimerMsg: "This result is based on word patterns and is not a guarantee. Always verify through official channels.",
     disclaimerLink: "This check only reads the shape of the link. The site is not opened, so page content, domain age and reputation are not examined. The result is not a guarantee.",
     linkNote: "This link's form shows no warning signs we recognise. We don't open the site, so the page content and its reputation haven't been checked.",
@@ -143,7 +143,7 @@ export const EN: Dict = {
   tactics: {
     "URGENSI": "Urgency", "OTORITAS PALSU": "False authority", "IMING-IMING": "Lure", "RASA TAKUT": "Fear",
     "DATA RAHASIA": "Secret data", "BIAYA DI MUKA": "Upfront fee", "ISOLASI": "Isolation", "KEDEKATAN PALSU": "False closeness",
-    "TAUTAN MENCURIGAKAN": "Suspicious link",
+    "TAUTAN MENCURIGAKAN": "Suspicious link", "JUDI ONLINE": "Online gambling",
   },
   parts: {
     title: "How to read this link", main: "Main domain (estimate)", mainHint: "This is what decides who owns the site.",
@@ -155,13 +155,13 @@ export const EN: Dict = {
   facts: { title: "Why this matters", sub: "Figures from real reports by people in Indonesia, not a simulation." },
   latihan: {
     h1: "Train your instincts.", lead: "Pick a situation, then decide your reply. Every choice gets instant feedback on which tactic the scammer used. All names and links in these simulations are fictional.",
-    start: "Start simulation", done: "✓ Done. Play again", back: "← All scenarios", source: "Source", chatAria: "Chat simulation", simNote: "Simulation, all fictional",
+    start: "Start simulation", done: "✓ Done. Play again", back: "All scenarios", source: "Source", chatAria: "Chat simulation", simNote: "Simulation, all fictional",
     pick: "Choose your reply", right: "The right choice", wrong: "Careful, that's a trap", next: "Continue",
     score: (g: number, n: number) => `${g} of ${n} choices were right`, tacticsShown: "Tactics that appeared:", another: "Try another scenario", again: "Replay", toEmergency: "Open emergency steps",
   },
   darurat: {
     h1: "Already happened? Stay calm, let's sort out the steps.", lead: "Pick the one closest to your situation. You'll get a step-by-step order and official reporting channels. The sooner you act, the better.",
-    disclaimer: "General guidance, not legal or financial advice. Channels last checked {date}.", change: "← Change situation", now: "Do this now", after: "After that", where: "Where to report",
+    disclaimer: "General guidance, not legal or financial advice. Channels last checked {date}.", change: "Change situation", now: "Do this now", after: "After that", where: "Where to report",
     sources: "Sources: OJK, Komdigi and Polri releases. Last checked {date}. Channels can change, so confirm on the official site.",
     warnTitle: "Warn friends and family", warnHint: "Copy this message and send it to a group. Don't include victims' personal data.",
     share: "Share as image", copy: "Copy text only", copied: "Copied", shareTitle: "Warning from JEDA",

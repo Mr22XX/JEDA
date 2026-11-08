@@ -58,7 +58,7 @@ export function Rich({ text }: { text: string }) {
         if (p.startsWith("**")) return <b key={i}>{p.slice(2, -2)}</b>;
         if (p.startsWith("`")) return <code key={i} className="rounded bg-brand/10 px-1.5 py-0.5 text-sm">{p.slice(1, -1)}</code>;
         const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-        if (m) return <a key={i} href={m[2]} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2 hover:text-brand">{m[1]}</a>;
+        if (m) return <a key={i} href={m[2]} target="_blank" rel="noopener noreferrer" className="lnk">{m[1]}</a>;
         if (p.length > 2 && p.startsWith("_") && p.endsWith("_")) return <i key={i}>{p.slice(1, -1)}</i>;
         return p;
       })}

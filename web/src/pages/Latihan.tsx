@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Choice } from "../data/scenarios";
 import type { Goto } from "../content";
+import { Arrow } from "../components/Icons";
 import { useI18n } from "../i18n";
 
 gsap.registerPlugin(useGSAP);
@@ -81,11 +82,11 @@ export default function Latihan({ goto, open }: Props) {
         <p className="mt-4 max-w-prose text-lg text-muted">{L.lead}</p>
         <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {scenarios.map((sc) => (
-            <button key={sc.id} onClick={() => start(sc.id)} className="flex flex-col items-start rounded-2xl border border-line bg-surface p-5 text-left transition hover:-translate-y-0.5 hover:border-brand active:scale-[.99]">
+            <button key={sc.id} onClick={() => start(sc.id)} className="flex flex-col items-start rounded-2xl border-2 border-edge bg-surface p-5 text-left transition hover:-translate-y-0.5 hover:border-brand active:scale-[.99]">
               {sc.audience && <span className="mb-2 rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">{sc.audience}</span>}
               <span className="text-lg font-bold leading-snug">{sc.title}</span>
               <span className="mt-2 text-sm text-muted">{sc.persona}</span>
-              <span className={`mt-4 text-sm font-semibold ${done.includes(sc.id) ? "text-calm" : "text-brand"}`}>{done.includes(sc.id) ? L.done : L.start}</span>
+              <span className={`mt-4 inline-flex items-center gap-1.5 text-sm font-bold ${done.includes(sc.id) ? "text-calm" : "text-brand"}`}>{done.includes(sc.id) ? L.done : L.start}<Arrow dir="right" size={16} /></span>
             </button>
           ))}
         </div>
@@ -96,11 +97,11 @@ export default function Latihan({ goto, open }: Props) {
   const end = node.end;
   return (
     <main className="mx-auto max-w-2xl px-5 pb-10 pt-5 sm:pt-12">
-      <button onClick={() => { setSid(null); setNodeId(""); }} className="-ml-2 rounded-lg px-2 py-2 text-sm font-semibold text-muted hover:text-ink">{L.back}</button>
+      <button type="button" onClick={() => { setSid(null); setNodeId(""); }} className="btn-back"><Arrow dir="left" />{L.back}</button>
       <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{s.title}</h1>
       <p className="mt-1 text-sm text-muted">{s.persona}</p>
       <p className="mt-3 rounded-xl bg-brand/10 p-3 text-sm leading-relaxed">
-        {s.fact} <a href={s.factUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">{L.source}</a>
+        {s.fact} <a href={s.factUrl} target="_blank" rel="noopener noreferrer" className="lnk">{L.source}</a>
       </p>
 
       <section aria-label={L.chatAria} className="mt-5 overflow-hidden rounded-3xl border border-line bg-surface shadow-xl shadow-brand/10">
@@ -127,7 +128,7 @@ export default function Latihan({ goto, open }: Props) {
               </h2>
               <p className="mt-2 text-sm leading-relaxed">{fb.feedback}</p>
               {fb.tactics && <p className="mt-3 flex flex-wrap gap-2">{fb.tactics.map((x) => <span key={x} className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs font-semibold">{tact(x)}</span>)}</p>}
-              <button onClick={next} className="mt-4 h-12 w-full rounded-xl bg-ink px-5 font-semibold text-paper sm:w-auto">{L.next}</button>
+              <button onClick={next} className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink px-6 font-semibold text-paper sm:w-auto">{L.next}<Arrow dir="right" /></button>
             </div>
           )}
 
@@ -135,7 +136,7 @@ export default function Latihan({ goto, open }: Props) {
             <div className="grid gap-2">
               <p className="text-sm font-semibold text-muted">{L.pick}</p>
               {node.choices.map((c) => (
-                <button key={c.text} onClick={() => pick(c)} className="min-h-12 rounded-xl border-2 border-line bg-surface px-4 py-3 text-left leading-snug transition hover:border-brand hover:bg-brand/5 active:scale-[.99]">{c.text}</button>
+                <button key={c.text} onClick={() => pick(c)} className="min-h-12 rounded-xl border-2 border-edge bg-surface px-4 py-3 text-left leading-snug transition hover:border-brand hover:bg-brand/5 active:scale-[.99]">{c.text}</button>
               ))}
             </div>
           )}
@@ -149,12 +150,10 @@ export default function Latihan({ goto, open }: Props) {
                 <p className="mt-3 text-sm text-muted">{L.tacticsShown}</p>
                 <p className="mt-1 flex flex-wrap gap-2">{stats.tactics.map((x) => <span key={x} className="rounded-full border border-line px-2.5 py-0.5 text-sm font-semibold">{tact(x)}</span>)}</p>
               </>}
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-                <button onClick={() => setSid(null)} className="h-12 rounded-xl bg-brand px-6 font-semibold text-on-brand">{L.another}</button>
-                <div className="flex gap-5 text-sm font-semibold">
-                  <button onClick={() => start(s.id)} className="text-brand hover:underline">{L.again}</button>
-                  {!end.good && <button onClick={() => goto("darurat")} className="text-tinggi hover:underline">{L.toEmergency}</button>}
-                </div>
+              <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+                <button onClick={() => setSid(null)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-6 font-semibold text-on-brand shadow-lg shadow-brand/30 transition hover:brightness-110">{L.another}<Arrow dir="right" /></button>
+                <button onClick={() => start(s.id)} className="btn-2">{L.again}</button>
+                {!end.good && <button onClick={() => goto("darurat")} className="btn-2 is-danger">{L.toEmergency}<Arrow dir="right" /></button>}
               </div>
             </div>
           )}
