@@ -229,21 +229,8 @@ Jangan menyebut angka dari 6.1 sebagai akurasi.
 
 ---
 
-## 8. Panduan menjawab pertanyaan juri
 
-| Pertanyaan | Jawaban singkat yang jujur |
-|---|---|
-| Dari mana bobotnya? | Ditetapkan dengan tiga kriteria (spesifisitas, dampak, risiko salah-tuduh) mengikuti bentuk skor aditif filter spam. Belum dikalibrasi dengan data nyata, dan itu kami akui. |
-| Apakah hasilnya akurat? | Pada pesan baru yang tidak dipakai menyetel aturan, 11 dari 20 pesan penipuan terdeteksi dan 0 dari 12 pesan sah salah ditandai. JEDA menangkap sebagian pola dan jarang salah menuduh, tetapi tidak menangkap semuanya. Sampelnya kecil dan ditulis oleh penyusun aturan. |
-| Kenapa tidak pakai AI? | Studi kasus menyebut pendekatan berbasis aturan yang bisa dijelaskan sudah cukup. Aturan membuat setiap hasil punya alasan yang bisa ditunjukkan, dan privasi terjaga karena semua berjalan di perangkat. |
-| Bagaimana menangani salah deteksi? | Hasilnya berupa tingkat waspada, bukan vonis. Kami menemukan dan memperbaiki salah-tuduh pada imbauan bank lewat korpus, dan dokumentasi mencantumkan batasannya. |
-| Dari mana label taktik? | Dari kajian psikologi penipuan (Stajano dan Wilson, 2011). Untuk "rasa takut" dan "isolasi" itu interpretasi kami, bukan temuan penulis tersebut. |
-| Kenapa enam skenario ini? | Dipilih dari modus yang paling banyak dilaporkan ke IASC dan yang disebut OJK, dengan dua sudut pandang pengguna. |
-| Apa yang tidak bisa dilakukan aplikasi? | Tidak membuka situs, tidak menilai reputasi, tidak menyatakan sesuatu aman, dan bisa lolos pada penipu yang sopan. Semua tertulis di halaman Tentang. |
-
----
-
-## 9. Pustaka
+## 8. Pustaka
 
 **Kajian psikologi penipuan**
 - Stajano, F. dan Wilson, P. (2011). Understanding scam victims: seven principles for systems security. *Communications of the ACM*, 54(3), 70-75. https://doi.org/10.1145/1897852.1897872. Versi laporan teknis: https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-754.html
