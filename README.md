@@ -2,6 +2,8 @@
 
 Aplikasi web untuk **MIT-Week 2026** (studi kasus *The Trust Trap*) yang membantu orang mengenali pesan dan tautan penipuan, berlatih menghadapinya, dan tahu apa yang harus dilakukan kalau sudah terlanjur. Mesin pendeteksinya berbasis aturan, jadi setiap temuan datang dengan **alasan yang bisa dijelaskan**, bukan skor misterius.
 
+**Demo langsung: https://jeda-kalibata.vercel.app/**
+
 > Semua analisis berjalan di browser (Rust yang dikompilasi ke WebAssembly). Teks dan tautan yang ditempel pengguna **tidak dikirim ke server mana pun**.
 
 ![Arsitektur JEDA](docs/arsitektur.svg)
@@ -34,6 +36,8 @@ Lainnya: dua bahasa (Indonesia dan Inggris), mode terang dan gelap, dan progres 
 
 Satu temuan berbobot 5 (OTP, PIN, ancaman sebar data) otomatis membuat skor minimal 4. Masukan dibatasi 10.000 karakter.
 
+Total ada **63 aturan pola kata** (28 Indonesia, 35 Inggris) dan daftar 39 merek untuk pemeriksa domain. Bobot dan ambang di atas adalah heuristik penyusun yang **belum dikalibrasi** dengan data nyata. Dasar lengkapnya ada di [docs/DASAR-PENYUSUNAN.md](docs/DASAR-PENYUSUNAN.md).
+
 ### Kelompok aturan
 
 | Awalan | Cakupan |
@@ -44,6 +48,25 @@ Satu temuan berbobot 5 (OTP, PIN, ancaman sebar data) otomatis membuat skor mini
 | `N` | Umpan saldo/hadiah palsu dan ajakan klik tautan |
 | `D` | Domain meniru merek (dari `domain.rs`) |
 | `L` | Bentuk tautan (dari `link.rs`) |
+
+## Dasar ilmiah dan hasil uji
+
+Setiap keputusan desain dicatat sebagai **bersumber**, **interpretasi penyusun**, atau **belum divalidasi**. Dokumen lengkap: [docs/DASAR-PENYUSUNAN.md](docs/DASAR-PENYUSUNAN.md).
+
+| Komponen | Dasar |
+|---|---|
+| 8 label taktik | Stajano dan Wilson (2011), prinsip pengaruh Cialdini; "Rasa takut" dan "Isolasi" adalah interpretasi penyusun |
+| Skor aditif dan ambang | Preseden filter spam SpamAssassin; bobot ordinal 1 sampai 5, belum dikalibrasi |
+| 6 skenario Latihan | Modus terbanyak di laporan OJK/IASC (mis. 23.469 laporan lowongan kerja, data Jan 2026) |
+| Langkah Darurat | Kanal resmi OJK, Komdigi, Polri (dicek 28 Okt 2026) |
+
+Uji **held-out** (pesan baru yang tidak dipakai menyetel aturan): sekitar separuh penipuan terdeteksi (Indonesia 5 dari 10, Inggris 6 dari 10) dan 0 dari 12 pesan sah salah ditandai. Contohnya sedikit dan ditulis oleh pembuat aturan, jadi ini perkiraan kasar, bukan akurasi dunia nyata. Korpus regresi (`engine/tests/korpus.rs`) hanya mencegah aturan mundur, bukan ukuran akurasi.
+
+```bash
+cd engine
+cargo test --test korpus -- --nocapture
+cargo test --test heldout -- --ignored --nocapture
+```
 
 ## Struktur proyek
 
@@ -56,6 +79,7 @@ jeda/
 │       ├── norm.rs         # normalisasi teks + peta posisi
 │       ├── domain.rs       # pemeriksa domain peniru merek
 │       └── link.rs         # pemeriksa tautan
+│   └── tests/              # korpus.rs (regresi), heldout.rs (laporan held-out)
 ├── web/                    # React + Vite + Tailwind v4 + GSAP
 │   └── src/
 │       ├── App.tsx         # navigasi dan tema
@@ -66,7 +90,9 @@ jeda/
 │       ├── components/
 │       ├── data/           # scenarios, emergency, facts, en
 │       └── wasm/           # hasil build wasm-pack (di-commit)
-└── docs/arsitektur.svg
+└── docs/
+    ├── arsitektur.svg
+    └── DASAR-PENYUSUNAN.md # sumber, bobot, skenario, hasil uji
 ```
 
 ## Menjalankan
@@ -128,7 +154,9 @@ Catatan penting:
 
 Kanal pelaporan dan angka statistik dapat berubah. Perbarui `CHECKED` setiap kali data diverifikasi ulang.
 
-## Deploy (Vercel/Netlify)
+## Deploy (Vercel)
+
+Situs produksi: https://jeda-kalibata.vercel.app/
 
 Hasil build WASM di-commit, jadi server deploy cukup menjalankan `npm run build` di folder `web`. Aturan rewrite SPA sudah tersedia (`vercel.json`, `public/_redirects`).
 
@@ -140,7 +168,7 @@ Hasil build WASM di-commit, jadi server deploy cukup menjalankan `npm run build`
 
 ## Batasan
 
-Berbasis pola kata, bukan pembuktian. Pesan sah bisa memicu aturan, dan penipu yang rapi bisa lolos. Pemeriksa tautan tidak melihat isi halaman, umur domain, atau reputasi. Hasil tidak pernah menyatakan sebuah pesan "aman"; kalau ragu, verifikasi lewat kanal resmi yang dicari sendiri.
+Berbasis pola kata, bukan pembuktian. Hanya mengenali bahasa Indonesia dan Inggris, dan paraphrase yang disusun ulang sering lolos. Pesan sah bisa memicu aturan, dan penipu yang rapi bisa lolos. Pemeriksa tautan tidak melihat isi halaman, umur domain, atau reputasi. Hasil tidak pernah menyatakan sebuah pesan "aman"; kalau ragu, verifikasi lewat kanal resmi yang dicari sendiri.
 
 ## Sumber daya pihak ketiga
 
