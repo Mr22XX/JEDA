@@ -63,3 +63,11 @@ export const LINK_SAMPLES = [
 export const LINK_NOTE: Partial<Record<Level, string>> = {
   tidak_ditemukan: "Bentuk tautan ini tidak menunjukkan tanda bahaya yang kami kenali. Kami tidak membuka situsnya, jadi isi halaman dan reputasinya belum diperiksa.",
 };
+
+// Contoh pesan berbahasa Inggris (nama tombol diterjemahkan lewat kamus). Semua fiktif.
+export const SAMPLES_EN = [
+  { name: "Giveaway", text: "Congratulations! You have been selected as the winner of a $5,000 gift card. Pay a small processing fee to claim your prize at https://prize-center.example" },
+  { name: "Fake job", text: "Work from home, no experience needed, earn $500 per day. Pay a registration fee of $50 to start today and message me on Telegram." },
+  { name: "Account blocked", text: "URGENT: Your bank account has been suspended. Verify now at http://secure-bank-login.xyz and send your one-time password to reactivate." },
+  { name: "Normal message", text: "Hi team, the meeting is moved to 3 pm tomorrow. Please bring your laptop." },
+];

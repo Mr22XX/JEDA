@@ -1,8 +1,8 @@
 export type Finding = { rule_id: string; tactic: string; weight: number; start: number; end: number; snippet: string; why: string };
 export type Level = "tidak_ditemukan" | "ringan" | "sedang" | "tinggi";
 export type Analysis = { score: number; level: Level; findings: Finding[]; combos: string[]; tactics: string[]; disclaimer: string };
-export type LinkParts = { scheme: string | null; host: string; subdomain: string; registrable: string; port: string | null; path: string };
-export type LinkAnalysis = Analysis & { error: string | null; input: string; parts: LinkParts | null };
+export type LinkParts = { scheme: string | null; userinfo: string | null; host: string; subdomain: string; registrable: string; port: string | null; path: string };
+export type LinkAnalysis = Analysis & { error: string | null; input: string; note: string | null; extra_links: number; parts: LinkParts | null };
 
 type Mod = { default: () => Promise<unknown>; analyze: (t: string) => string; analyze_link?: (t: string) => string };
 

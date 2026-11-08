@@ -11,7 +11,7 @@ Dokumen ini menjelaskan **dari mana** aturan deteksi, label taktik, bobot, skena
 | Komponen | Dasar utama | Status |
 |---|---|---|
 | Label taktik (8 jenis) | Kajian psikologi penipuan (Stajano dan Wilson, 2011; Cialdini) | Sebagian bersumber, sebagian interpretasi (lihat tabel bagian 2) |
-| Aturan dan pola kata | Modus yang dilaporkan OJK/IASC, ditambah penulisan pola oleh penyusun | Interpretasi penyusun, diuji dengan korpus kecil |
+| Aturan dan pola kata (63: 28 Indonesia, 35 Inggris) | Modus yang dilaporkan OJK/IASC dan pola umum penipuan berbahasa Inggris, ditulis penyusun | Interpretasi penyusun. Pada pesan baru yang tidak dipakai menyetel aturan, sekitar separuh penipuan terdeteksi (bagian 6) |
 | Bobot 1 sampai 5 dan ambang tingkat | Tiga kriteria penilaian penyusun, dengan preseden skor aditif pada filter spam | Interpretasi penyusun, **belum dikalibrasi dengan data nyata** |
 | Skenario Latihan (6) | Modus yang paling banyak dilaporkan ke IASC dan daftar modus OJK | Bersumber untuk pemilihan topik, interpretasi untuk isi dialog |
 | Langkah darurat | Kanal dan imbauan resmi OJK, Komdigi, Polri | Bersumber untuk kanal, praktik umum untuk langkah keamanan akun |
@@ -38,6 +38,8 @@ Dokumen ini menjelaskan **dari mana** aturan deteksi, label taktik, bobot, skena
 | **Data rahasia** | Tujuan penipu | Bukan prinsip psikologis: ini barang yang dicari (kode OTP, PIN, data identitas) | Pengelompokan penyusun |
 | **Biaya di muka** | Mekanisme penipuan | Penipuan biaya di muka (*advance fee*) adalah kategori yang dikenal luas dan memiliki aturan khusus di filter spam | Pengelompokan penyusun |
 | **Tautan mencurigakan** | Indikator teknis | Pola URL tiruan (domain meniru merek, alamat IP, file APK) | Pengamatan umum, tanpa satu rujukan tunggal |
+
+Aturan berbahasa Inggris (E01 sampai E35) memakai **label taktik yang sama** dengan aturan Indonesia, sehingga satu taksonomi berlaku untuk dua bahasa dan rekomendasi skenario Latihan tetap bekerja.
 
 ### Hal yang perlu diakui
 
@@ -107,6 +109,24 @@ Ambang ini juga **heuristik, belum dikalibrasi**.
 
 ---
 
+## 3b. Dasar pemeriksa tautan
+
+Pemeriksa tautan **tidak membuka situs**. Ia membaca bentuk URL dan mencocokkannya dengan tanda-tanda yang bisa dijelaskan.
+
+| Kelompok tanda | Contoh | Dasar |
+|---|---|---|
+| Struktur URL | Teks sebelum `@` hanyalah informasi pengguna, tujuan sebenarnya adalah host setelahnya | Sintaks URL pada RFC 3986 (https://www.rfc-editor.org/rfc/rfc3986) |
+| Penyamaran alamat | IP tertulis heksadesimal, oktal, atau satu angka panjang; karakter terenkode (%) di host | Pengamatan umum; tidak ada satu rujukan tunggal |
+| Peniruan merek | Angka atau huruf Kiril pengganti huruf, salah satu huruf, merek ditambah kata, merek sebagai subdomain atau nama situs di hosting gratis | Pengamatan umum |
+| Platform hosting gratis | Subdomain bebas di `vercel.app`, `github.io`, dan sejenisnya, sehingga nama situs dikuasai pengguna | Banyak platform seperti ini terdaftar di bagian privat Public Suffix List (https://publicsuffix.org) |
+| Isi tautan | File APK atau EXE, parameter `password`, `otp`, `pin`, pengalihan ke alamat lain | Pengamatan umum |
+
+**Domain utama** diperkirakan dengan daftar kecil akhiran dua tingkat dan daftar platform hosting, **bukan** Public Suffix List lengkap. Itu perkiraan, dan antarmuka menyebutnya begitu.
+
+Bobot tautan memakai skala dan alasan yang sama dengan bagian 3, dan sama-sama **heuristik yang belum dikalibrasi**. Daftar merek di `engine/rules.json` (39 nama) sengaja **tidak** dibandingkan dengan daftar domain resmi, karena daftar yang salah akan menandai situs sah. Pemeriksaan hanya struktural, dan situs yang rapi serta bersih dari tanda di atas bisa lolos.
+
+---
+
 ## 4. Dasar skenario Latihan
 
 ### Pemilihan topik
@@ -157,35 +177,49 @@ Pilihan topik bersumber. **Isi dialog dan alur percabangan adalah karya penyusun
 
 ---
 
-## 6. Hasil uji korpus
+## 6. Hasil uji
 
-Berkas: `engine/tests/korpus.rs`. Jalankan dengan `cargo test --test korpus -- --nocapture`. CI GitHub Actions menjalankannya pada setiap perubahan di folder `engine`.
+Berkas: `engine/tests/korpus.rs` (regresi, dijalankan CI) dan `engine/tests/heldout.rs` (laporan held-out). Jalankan dengan `cargo test --test korpus -- --nocapture` dan `cargo test --test heldout -- --ignored --nocapture`.
 
-| Kelompok | Jumlah | Hasil |
+### 6.1 Korpus regresi: dipakai untuk menyetel aturan
+
+| Kelompok | Penipuan terdeteksi | Sah lolos |
 |---|---|---|
-| Pesan penipuan fiktif (harus minimal "sedang") | 19 | **19 terdeteksi** |
-| Pesan sah fiktif (harus paling tinggi "ringan") | 12 | **12 lolos** |
-| Tautan berbahaya fiktif | 8 | **8 terdeteksi** |
-| Tautan sah | 8 | **8 lolos** |
-| Contoh sulit sengaja (penipu sopan, formulir, bahasa Inggris) | 3 | **0 terdeteksi** (batasan yang diketahui) |
+| Pesan Indonesia | 31 dari 31 | 20 dari 20 |
+| Pesan Inggris | 30 dari 30 | 21 dari 21 |
+| Tautan | 12 dari 12 | 13 dari 13 |
+| Contoh sulit sengaja (3 Indonesia, 3 Inggris) | 0 dari 6 | tidak berlaku |
 
-### Temuan selama pengujian
+**Angka ini bukan ukuran akurasi.** Aturan dibuat dan disetel dari contoh yang sama. Fungsinya mencegah aturan mundur saat diubah.
 
-Uji pertama menemukan **3 dari 12 pesan sah salah ditandai**: imbauan keamanan bank seperti "jangan berikan kode OTP" dan "pihak bank tidak pernah meminta PIN". Ini kelemahan khas aturan berbasis kata kunci.
+### 6.2 Uji held-out: ukuran yang lebih jujur
 
-**Perbaikan:** aturan dapat memuat pola penyangkalan (`unless` dan `unless_after`) yang membuat kalimat penyangkalan diabaikan. Setelah itu seluruh pesan sah lolos. Agar perbaikan ini tidak membuat aturan buta, ditambahkan satu contoh penipu yang meniru bahasa waspada ("Jangan khawatir, ini prosedur resmi. Segera sebutkan kode OTP..."), dan contoh itu tetap terdeteksi.
+Pesan ditulis **setelah aturan dikunci** dengan kata-kata yang sengaja berbeda, lalu dijalankan **sekali** tanpa menyetel aturan dari hasilnya.
 
-### Batas klaim (penting)
+| Kelompok | Penipuan terdeteksi | Sah salah ditandai |
+|---|---|---|
+| Indonesia | **5 dari 10** | 0 dari 6 |
+| Inggris | **6 dari 10** | 0 dari 6 |
 
-- Korpus **ditulis oleh orang yang menulis aturan**, sehingga ini uji regresi dan pemeriksaan kewajaran, **bukan evaluasi independen**.
-- Jumlahnya kecil dan **tidak mewakili pesan penipuan nyata**.
-- Angka ini **tidak boleh disebut akurasi** di dunia nyata. Kalimat yang aman: *"Dalam uji internal dengan 19 pesan penipuan dan 12 pesan sah fiktif, semuanya terklasifikasi sesuai harapan; tiga contoh sulit yang sengaja kami masukkan tidak terdeteksi."*
+Dengan hanya 10 contoh per bahasa, ketidakpastiannya besar. Selang kepercayaan 95% kasarnya sekitar 24% sampai 76% (Indonesia) dan 31% sampai 83% (Inggris). Nol salah-tuduh dari 6 pesan sah terlalu sedikit untuk menyimpulkan bahwa tingkat salah-tuduh rendah.
+
+### 6.3 Temuan selama pengujian
+
+1. **Imbauan keamanan bank salah ditandai.** Uji pertama menemukan 3 dari 12 pesan sah ("jangan berikan kode OTP", "pihak bank tidak pernah meminta PIN") salah ditandai. Diperbaiki dengan pola penyangkalan (`unless` dan `unless_after`), dan penipu yang meniru bahasa waspada tetap terdeteksi.
+2. **Kesenjangan antara korpus yang disetel dan pesan baru.** Pada set held-out pertama, hanya 4 dari 12 (Indonesia) dan 3 dari 12 (Inggris) pesan penipuan terdeteksi, padahal korpus yang disetel menunjukkan hampir semuanya terdeteksi. Aturan lalu diperluas berdasarkan **jenis** kekurangan (nominal gaji, kalimat permintaan uang, pola penonaktifan akun, tautan tanpa skema, dan sejenisnya). Set pertama itu kemudian masuk ke korpus regresi, dan set kedua yang benar-benar baru ditulis untuk angka di 6.2.
+3. **Aturan kata kunci menangkap parafrase dengan buruk.** Penipu yang mengubah susunan kalimat sering lolos. Ini keterbatasan mendasar pendekatan ini, bukan sekadar kurang aturan.
+
+### 6.4 Batas klaim
+
+Kalimat yang aman: *"Dalam uji dengan 20 pesan baru (10 Indonesia, 10 Inggris) yang tidak dipakai menyetel aturan, 11 pesan penipuan terdeteksi dan tidak ada dari 12 pesan sah yang salah ditandai. Contohnya sedikit dan ditulis oleh pembuat aturan, jadi ini perkiraan kasar, bukan akurasi di dunia nyata."*
+
+Jangan menyebut angka dari 6.1 sebagai akurasi.
 
 ---
 
 ## 7. Keterbatasan dan langkah lanjutan
 
-**Keterbatasan:** hanya pola kata berbahasa Indonesia; situs tidak dibuka saat cek tautan; bobot dan ambang belum dikalibrasi; korpus kecil dan tidak independen; dialog skenario belum diuji pada pengguna.
+**Keterbatasan:** hanya pola kata berbahasa Indonesia dan Inggris; situs tidak dibuka saat cek tautan; bobot dan ambang belum dikalibrasi; korpus kecil dan tidak independen; dialog skenario belum diuji pada pengguna.
 
 **Langkah lanjutan yang masuk akal:**
 1. Kumpulkan pesan penipuan nyata yang sudah dianonimkan dan **dengan persetujuan**, lalu kalibrasi bobot secara statistik seperti pada preseden filter spam.
@@ -200,7 +234,7 @@ Uji pertama menemukan **3 dari 12 pesan sah salah ditandai**: imbauan keamanan b
 | Pertanyaan | Jawaban singkat yang jujur |
 |---|---|
 | Dari mana bobotnya? | Ditetapkan dengan tiga kriteria (spesifisitas, dampak, risiko salah-tuduh) mengikuti bentuk skor aditif filter spam. Belum dikalibrasi dengan data nyata, dan itu kami akui. |
-| Apakah hasilnya akurat? | Dalam uji internal 31 pesan fiktif, semuanya sesuai harapan. Tetapi korpus ditulis sendiri, jadi ini bukan akurasi dunia nyata. |
+| Apakah hasilnya akurat? | Pada pesan baru yang tidak dipakai menyetel aturan, 11 dari 20 pesan penipuan terdeteksi dan 0 dari 12 pesan sah salah ditandai. JEDA menangkap sebagian pola dan jarang salah menuduh, tetapi tidak menangkap semuanya. Sampelnya kecil dan ditulis oleh penyusun aturan. |
 | Kenapa tidak pakai AI? | Studi kasus menyebut pendekatan berbasis aturan yang bisa dijelaskan sudah cukup. Aturan membuat setiap hasil punya alasan yang bisa ditunjukkan, dan privasi terjaga karena semua berjalan di perangkat. |
 | Bagaimana menangani salah deteksi? | Hasilnya berupa tingkat waspada, bukan vonis. Kami menemukan dan memperbaiki salah-tuduh pada imbauan bank lewat korpus, dan dokumentasi mencantumkan batasannya. |
 | Dari mana label taktik? | Dari kajian psikologi penipuan (Stajano dan Wilson, 2011). Untuk "rasa takut" dan "isolasi" itu interpretasi kami, bukan temuan penulis tersebut. |

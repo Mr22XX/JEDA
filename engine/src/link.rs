@@ -1,12 +1,33 @@
 //! Pemeriksa tautan: hanya membaca bentuk URL (situs tidak dibuka), berbasis aturan yang bisa dijelaskan.
 use crate::domain;
 use crate::Finding;
+use regex::Regex;
 use serde::Serialize;
 use std::collections::BTreeSet;
+use std::sync::OnceLock;
 
 const TACTIC: &str = "TAUTAN MENCURIGAKAN";
 const DISCLAIMER: &str = "Pemeriksaan ini hanya membaca bentuk tautan. Situsnya tidak dibuka, jadi isi halaman, umur domain, dan reputasinya tidak diperiksa. Hasil bukan jaminan.";
-const SECOND_LEVEL: &[&str] = &["co.id", "go.id", "or.id", "ac.id", "sch.id", "web.id", "my.id", "biz.id", "desa.id", "mil.id", "net.id", "ponpes.id", "co.uk", "com.au"];
+const NO_URL: &str = "Tautan tidak boleh mengandung spasi dan tidak ada tautan yang bisa diambil dari teks ini. Tempel satu tautan, atau pakai Cek pesan untuk teks panjang.";
+const ONLY_HTTP: &str = "Hanya tautan http dan https yang bisa diperiksa.";
+
+/// Akhiran dua tingkat (perkiraan, bukan Public Suffix List lengkap).
+const SECOND_LEVEL: &[&str] = &[
+    "co.id", "go.id", "or.id", "ac.id", "sch.id", "web.id", "my.id", "biz.id", "desa.id", "mil.id", "net.id", "ponpes.id",
+    "co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "net.au", "org.au", "edu.au", "co.nz", "co.jp", "or.jp", "co.kr", "co.in",
+    "net.in", "org.in", "com.sg", "com.my", "com.cn", "com.br", "com.mx", "com.tr", "com.hk", "com.tw", "com.ph", "com.vn",
+    "co.th", "co.za", "com.ar", "com.co", "com.pe",
+];
+/// Platform hosting tempat siapa saja bisa membuat subdomain bebas. Nama situs di depannya dikuasai pengguna.
+const HOSTING: &[&str] = &[
+    "github.io", "gitlab.io", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "web.app", "firebaseapp.com", "blogspot.com",
+    "wordpress.com", "herokuapp.com", "onrender.com", "glitch.me", "weebly.com", "wixsite.com", "000webhostapp.com", "repl.co",
+    "replit.app", "carrd.co", "notion.site", "webflow.io", "framer.website", "bubbleapps.io", "azurewebsites.net", "appspot.com",
+    "ngrok.io", "ngrok-free.app", "trycloudflare.com", "duckdns.org", "ddns.net", "surge.sh", "fly.dev", "railway.app", "deno.dev",
+    "my.canva.site",
+];
+const USER_CONTENT: &[&str] = &["forms.gle", "sites.google.com", "linktr.ee", "bio.link"];
+const CRED_KEYS: &[&str] = &["password", "passwd", "pwd", "pass", "otp", "pin", "cvv", "cardnumber", "card", "ssn"];
 const CHEAP_TLDS: &[&str] = &["xyz", "top", "click", "icu", "site", "online", "vip", "cc", "buzz", "cfd", "sbs", "monster"];
 const SHORTENERS: &[&str] = &["bit.ly", "tinyurl.com", "cutt.ly", "s.id", "t.ly", "is.gd", "rb.gy", "shorturl.at", "ow.ly"];
 const BAIT: &[&str] = &["login", "masuk", "verifikasi", "verify", "secure", "akun", "account", "update", "perbarui", "konfirmasi", "klaim", "claim", "hadiah", "bonus", "promo", "undian", "pencairan", "reset"];
@@ -17,6 +38,7 @@ type R = (usize, usize);
 #[derive(Serialize)]
 pub struct Parts {
     pub scheme: Option<String>,
+    pub userinfo: Option<String>,
     pub host: String,
     pub subdomain: String,
     pub registrable: String,
@@ -27,7 +49,12 @@ pub struct Parts {
 #[derive(Serialize)]
 pub struct LinkAnalysis {
     pub error: Option<String>,
+    /// Tautan yang sudah dirapikan. Posisi sorotan merujuk ke teks ini.
     pub input: String,
+    /// "EXTRACTED" bila tautan diambil dari teks yang lebih panjang.
+    pub note: Option<String>,
+    /// Jumlah tautan lain yang ada di teks tetapi tidak diperiksa.
+    pub extra_links: usize,
     pub score: u32,
     pub level: &'static str,
     pub findings: Vec<Finding>,
@@ -40,13 +67,33 @@ pub struct LinkAnalysis {
 struct P { scheme: Option<R>, userinfo: Option<R>, host: R, port: Option<R>, path: R }
 
 fn fail(input: &str, msg: &str) -> LinkAnalysis {
-    LinkAnalysis { error: Some(msg.into()), input: input.into(), score: 0, level: "tidak_ditemukan", findings: vec![], combos: vec![], tactics: vec![], disclaimer: DISCLAIMER, parts: None }
+    LinkAnalysis { error: Some(msg.into()), input: input.into(), note: None, extra_links: 0, score: 0, level: "tidak_ditemukan", findings: vec![], combos: vec![], tactics: vec![], disclaimer: DISCLAIMER, parts: None }
+}
+
+fn url_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| Regex::new(r#"(?i)(?:https?://|www\.)[^\s<>"'“”‘’]+"#).unwrap())
+}
+
+fn trim_url(s: &str) -> &str {
+    s.trim_start_matches(|c| matches!(c, '<' | '(' | '[' | '{' | '"' | '\'' | '“' | '‘'))
+        .trim_end_matches(|c| matches!(c, '>' | ')' | ']' | '}' | '"' | '\'' | '”' | '’' | '.' | ',' | ';' | ':' | '!' | '?'))
+}
+
+/// Rapikan masukan: buang pembungkus dan tanda baca, ubah \ jadi /, dan ambil tautan pertama bila yang ditempel berupa teks.
+fn prepare(raw: &str) -> Result<(String, bool, usize), &'static str> {
+    let t: String = raw.trim().replace('\\', "/").chars().take(4096).collect();
+    if t.chars().any(|c| c.is_whitespace()) {
+        let found: Vec<&str> = url_re().find_iter(&t).map(|m| m.as_str()).collect();
+        if found.is_empty() { return Err(NO_URL); }
+        return Ok((trim_url(found[0]).chars().take(2048).collect(), true, found.len() - 1));
+    }
+    Ok((trim_url(&t).chars().take(2048).collect(), false, 0))
 }
 
 fn parse(s: &str) -> Result<P, &'static str> {
-    const ONLY_HTTP: &str = "Hanya tautan http dan https yang bisa diperiksa.";
     if s.is_empty() { return Err("Tempel tautan terlebih dahulu."); }
-    if s.chars().any(|c| c.is_whitespace()) { return Err("Tautan tidak boleh mengandung spasi. Tempel satu tautan saja."); }
+    if s.chars().any(|c| c.is_whitespace()) { return Err(NO_URL); }
     let (scheme, start) = if let Some(i) = s.find("://") {
         let sc = &s[..i];
         if !sc.eq_ignore_ascii_case("http") && !sc.eq_ignore_ascii_case("https") { return Err(ONLY_HTTP); }
@@ -104,20 +151,36 @@ fn tokens(s: &str, base: usize) -> Vec<(R, String)> {
     out
 }
 
-fn ip_ok(host: &str) -> bool {
-    if host.contains('.') { host.split('.').count() == 4 && host.split('.').all(|x| x.parse::<u8>().is_ok()) } else { host.len() >= 8 }
+/// Apakah host berupa alamat IP? Some(true) bila ditulis dengan cara yang disamarkan (heksadesimal, oktal, satu angka panjang).
+fn ip_kind(host: &str, labels: &[&str]) -> Option<bool> {
+    if host.starts_with('[') { return Some(false); }
+    let num = |l: &str| !l.is_empty() && l.chars().all(|c| c.is_ascii_digit());
+    let hex = |l: &str| l.len() > 2 && (l.starts_with("0x") || l.starts_with("0X")) && l[2..].chars().all(|c| c.is_ascii_hexdigit());
+    if labels.is_empty() || labels.len() > 4 || !labels.iter().all(|l| num(l) || hex(l)) { return None; }
+    let any_hex = labels.iter().any(|l| hex(l));
+    match labels.len() {
+        4 => {
+            let plain = labels.iter().all(|l| num(l) && l.parse::<u8>().is_ok() && !(l.len() > 1 && l.starts_with('0')));
+            Some(!plain)
+        }
+        1 if hex(labels[0]) || (num(labels[0]) && labels[0].len() >= 8) => Some(true),
+        2 | 3 if any_hex => Some(true),
+        _ => None,
+    }
 }
 
 pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
-    let s: String = raw.trim().chars().take(2048).collect();
+    let (s, extracted, extra) = match prepare(raw) { Ok(x) => x, Err(e) => return fail(raw.trim(), e) };
     let p = match parse(&s) { Ok(p) => p, Err(e) => return fail(&s, e) };
     let host = &s[p.host.0..p.host.1];
     if host.is_empty() { return fail(&s, "Tautan tidak memiliki nama domain."); }
 
-    let numeric = host.chars().all(|c| c.is_ascii_digit() || c == '.');
-    let is_ip = host.starts_with('[') || (numeric && ip_ok(host));
-    if !is_ip {
-        if numeric { return fail(&s, "Alamat tidak valid."); }
+    let encoded = host.contains('%');
+    let host_labels: Vec<&str> = host.split('.').collect();
+    let ip = if encoded { None } else { ip_kind(host, &host_labels) };
+    let skip_domain = encoded || ip.is_some();
+    if !skip_domain {
+        if host.chars().all(|c| c.is_ascii_digit() || c == '.') { return fail(&s, "Alamat tidak valid."); }
         if !host.contains('.') { return fail(&s, "Ini tampaknya bukan alamat situs karena tidak ada titik, misalnya contoh.com."); }
         if host.starts_with('.') || host.ends_with('.') || host.contains("..") { return fail(&s, "Nama domain tidak valid."); }
         if !host.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '.') { return fail(&s, "Nama domain mengandung karakter yang tidak valid."); }
@@ -125,7 +188,7 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         if tld.chars().count() < 2 || !tld.chars().all(|c| c.is_alphabetic()) { return fail(&s, "Bagian akhir domain tidak valid."); }
     }
 
-    // Bagian-bagian domain. Domain utama diperkirakan dengan daftar akhiran sederhana.
+    // Bagian-bagian domain. Domain utama diperkirakan dengan daftar akhiran sederhana dan daftar platform hosting.
     let mut labels: Vec<R> = Vec::new();
     let mut st = p.host.0;
     for (i, c) in host.char_indices() {
@@ -134,12 +197,17 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
     labels.push((st, p.host.1));
     let lower = |r: R| s[r.0..r.1].to_lowercase();
     let n = labels.len();
-    let suffix_len = if n >= 2 && SECOND_LEVEL.contains(&format!("{}.{}", lower(labels[n - 2]), lower(labels[n - 1])).as_str()) { 2 } else { 1 };
+    let hl = host.to_lowercase();
+    let hosting = if skip_domain { None } else { HOSTING.iter().find(|h| hl.ends_with(&format!(".{h}"))) };
+    let suffix_len = if let Some(h) = hosting { h.split('.').count() }
+        else if n >= 2 && SECOND_LEVEL.contains(&format!("{}.{}", lower(labels[n - 2]), lower(labels[n - 1])).as_str()) { 2 } else { 1 };
     let reg_idx = n.saturating_sub(suffix_len + 1);
-    let registrable: R = if is_ip { p.host } else { (labels[reg_idx].0, p.host.1) };
-    let subdomain: Option<R> = if !is_ip && reg_idx > 0 { Some((p.host.0, labels[reg_idx].0 - 1)) } else { None };
+    let registrable: R = if skip_domain { p.host } else { (labels[reg_idx].0, p.host.1) };
+    let subdomain: Option<R> = if !skip_domain && reg_idx > 0 { Some((p.host.0, labels[reg_idx].0 - 1)) } else { None };
 
     let mut out: Vec<Finding> = Vec::new();
+    let pp = &s[p.path.0..p.path.1];
+
     if let Some(sc) = p.scheme {
         if s[sc.0..sc.1].eq_ignore_ascii_case("http") {
             add(&s, &mut out, "L01", 1, sc, "Tautan memakai http tanpa enkripsi. Situs resmi umumnya memakai https. Perlu diingat, https sendiri bukan jaminan situs itu aman.");
@@ -155,7 +223,6 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         }
     }
     {
-        let pp = &s[p.path.0..p.path.1];
         let cut = pp.find(|c| c == '?' || c == '#').unwrap_or(pp.len());
         let pathonly = &pp[..cut];
         if let Some(dot) = pathonly.rfind('.') {
@@ -168,15 +235,31 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         if lowpp.contains("=http") || lowpp.contains("=%68ttp") || lowpp.contains("%3a%2f%2f") {
             add(&s, &mut out, "L14", 2, p.path, "Tautan membawa alamat lain di dalamnya dan bisa mengarahkan ulang ke situs yang berbeda.");
         }
+        // Parameter yang tampak seperti kata sandi, PIN, atau OTP.
+        if let Some(qi) = pp.find('?') {
+            let qend = pp[qi..].find('#').map(|x| qi + x).unwrap_or(pp.len());
+            let mut off = qi + 1;
+            for seg in pp[qi + 1..qend].split('&') {
+                let key = seg.split('=').next().unwrap_or("").to_lowercase();
+                if seg.contains('=') && CRED_KEYS.contains(&key.as_str()) {
+                    add(&s, &mut out, "L18", 3, (p.path.0 + off, p.path.0 + off + seg.len()), "Tautan membawa parameter yang tampak seperti kata sandi, PIN, atau OTP. Situs sah tidak meminta data rahasia lewat tautan.");
+                    break;
+                }
+                off += seg.len() + 1;
+            }
+        }
     }
     if s.chars().count() > 150 {
         add(&s, &mut out, "L15", 1, (0, s.len()), "Tautan sangat panjang. Bagian ujung yang panjang sering dipakai untuk menyembunyikan tujuan.");
     }
+    if encoded {
+        add(&s, &mut out, "L19", 3, p.host, "Nama domain memakai karakter terenkode (tanda %) yang menyamarkan alamat sebenarnya.");
+    }
 
-    if is_ip {
+    if let Some(obf) = ip {
         add(&s, &mut out, "L03", 4, p.host, "Tautan memakai alamat IP, bukan nama domain. Situs resmi hampir selalu memakai nama domain.");
-    } else {
-        let hl = host.to_lowercase();
+        if obf { add(&s, &mut out, "L20", 3, p.host, "Alamat IP ditulis dengan cara yang disamarkan (heksadesimal, oktal, atau satu angka panjang) untuk menyembunyikan tujuan."); }
+    } else if !encoded {
         if SHORTENERS.iter().any(|d| hl == *d || hl.ends_with(&format!(".{d}"))) {
             add(&s, &mut out, "L04", 2, p.host, "Tautan dipendekkan sehingga tujuan sebenarnya tidak terlihat. Kami tidak bisa membukanya untuk melihat tujuannya.");
         }
@@ -184,12 +267,18 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         if CHEAP_TLDS.contains(&lower(last).as_str()) {
             add(&s, &mut out, "L05", 2, last, "Akhiran domain ini murah dan sering dipakai situs tiruan, tetapi banyak situs sah juga memakainya.");
         }
+        if hosting.is_some() {
+            add(&s, &mut out, "L16", 2, (labels[n - suffix_len].0, p.host.1), "Situs ini dipasang di platform hosting gratis tempat siapa saja bisa membuat alamat bebas. Banyak situs sah memakainya, tetapi situs tiruan juga sering begitu.");
+            let rl = labels[reg_idx];
+            if tokens(&s[rl.0..rl.1], rl.0).iter().any(|(_, t)| brands.iter().any(|b| b == t || domain::fold(t) == *b)) {
+                add(&s, &mut out, "L17", 4, rl, "Nama merek dipakai sebagai nama situs di platform hosting gratis. Pemilik merek asli hampir selalu memakai domainnya sendiri.");
+            }
+        }
         if let Some(sd) = subdomain {
             if s[sd.0..sd.1].split('.').count() >= 3 {
                 add(&s, &mut out, "L06", 2, sd, "Banyak lapisan subdomain dipakai untuk menyembunyikan domain utama yang sebenarnya.");
             }
-            if let Some(b) = tokens(&s[sd.0..sd.1], sd.0).iter().find_map(|(_, t)| brands.iter().find(|b| *b == t || domain::fold(t) == **b)) {
-                let _ = b;
+            if tokens(&s[sd.0..sd.1], sd.0).iter().any(|(_, t)| brands.iter().any(|b| b == t || domain::fold(t) == *b)) {
                 add(&s, &mut out, "L08", 4, sd, "Nama merek muncul sebagai subdomain, sedangkan domain utamanya milik pihak lain. Yang menentukan pemilik situs adalah domain utamanya.");
             }
         }
@@ -201,13 +290,15 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
         if let Some((r, _)) = tokens(host, p.host.0).into_iter().find(|(_, t)| BAIT.contains(&t.as_str())) {
             add(&s, &mut out, "L10", 2, r, "Nama domain memuat kata pancingan seperti login atau verifikasi. Situs resmi biasanya tidak menaruhnya di nama domain.");
         }
+        if USER_CONTENT.iter().any(|d| hl == *d || hl.ends_with(&format!(".{d}"))) || (hl == "docs.google.com" && pp.starts_with("/forms")) {
+            add(&s, &mut out, "L21", 1, p.host, "Platform ini memungkinkan siapa saja menerbitkan halaman atau formulir. Isinya belum tentu dari pihak yang disebut dalam pesan.");
+        }
         out.extend(domain::check(&s, brands));
     }
 
     // Jalur URL: hanya dihitung bila sudah ada tanda lain, supaya halaman login situs resmi tidak ikut ditandai.
-    let path_text = &s[p.path.0..p.path.1];
     let reg_tokens: BTreeSet<String> = tokens(&s[registrable.0..registrable.1], 0).into_iter().map(|(_, t)| t).collect();
-    let ptoks = tokens(path_text, p.path.0);
+    let ptoks = tokens(pp, p.path.0);
     if let Some((r, _)) = ptoks.iter().find(|(_, t)| brands.contains(t) && !reg_tokens.contains(t)) {
         add(&s, &mut out, "L09", 2, *r, "Nama merek muncul di jalur tautan, bukan di nama domain. Jalur bisa diisi siapa saja.");
     }
@@ -229,13 +320,14 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
 
     let parts = Parts {
         scheme: p.scheme.map(|r| s[r.0..r.1].to_lowercase()),
+        userinfo: p.userinfo.map(|r| s[r.0..r.1].to_string()),
         host: host.to_string(),
         subdomain: subdomain.map(|r| s[r.0..r.1].to_string()).unwrap_or_default(),
         registrable: s[registrable.0..registrable.1].to_string(),
         port: p.port.map(|r| s[r.0..r.1].to_string()).filter(|x| !x.is_empty()),
         path: s[p.path.0..p.path.1].to_string(),
     };
-    LinkAnalysis { error: None, input: s.clone(), score, level, findings: out, combos, tactics, disclaimer: DISCLAIMER, parts: Some(parts) }
+    LinkAnalysis { error: None, input: s.clone(), note: extracted.then(|| "EXTRACTED".to_string()), extra_links: extra, score, level, findings: out, combos, tactics, disclaimer: DISCLAIMER, parts: Some(parts) }
 }
 
 #[cfg(test)]
@@ -253,15 +345,14 @@ mod tests {
         assert_eq!((p.registrable.as_str(), p.subdomain.as_str()), ("bca.co.id", "www"));
     }
     #[test]
-    fn domain_tiruan_tanpa_skema_jadi_tinggi() {
-        assert_eq!(run("bca-verifikasi.xyz/login").level, "tinggi");
-    }
+    fn domain_tiruan_tanpa_skema_jadi_tinggi() { assert_eq!(run("bca-verifikasi.xyz/login").level, "tinggi"); }
     #[test]
     fn tanda_at_dan_posisi_sorotan() {
         let a = run("https://bca.co.id@evil.xyz/");
         let f = a.findings.iter().find(|f| f.rule_id == "L02").unwrap();
         assert_eq!((f.start, f.end), (8, 17));
         assert!(a.score >= 4);
+        assert_eq!(a.parts.unwrap().userinfo.as_deref(), Some("bca.co.id"));
     }
     #[test]
     fn alamat_ip() { assert!(has(&run("http://192.168.1.10/login"), "L03")); }
@@ -272,21 +363,71 @@ mod tests {
     #[test]
     fn file_apk() { assert!(has(&run("https://toko.example/files/resi.apk"), "L12")); }
     #[test]
-    fn port_dan_http() {
-        let a = run("http://situs.example:8080/");
-        assert!(has(&a, "L13") && has(&a, "L01"));
-    }
+    fn port_dan_http() { let a = run("http://situs.example:8080/"); assert!(has(&a, "L13") && has(&a, "L01")); }
     #[test]
     fn angka_pengganti_huruf_di_domain() { assert!(has(&run("https://tokopedi4.com"), "D01")); }
     #[test]
     fn masukan_tidak_valid_ditolak() {
-        for bad in ["", "javascript:alert(1)", "https://contoh .com", "bca", "Rp50.000"] {
+        for bad in ["", "javascript:alert(1)", "https://contoh .com", "bca", "Rp50.000", "halo apa kabar"] {
             assert!(run(bad).error.is_some(), "harus ditolak: {bad}");
         }
     }
     #[test]
-    fn spasi_di_pinggir_dibuang() {
-        let a = run("   https://www.bca.co.id/   ");
-        assert_eq!(a.input, "https://www.bca.co.id/");
+    fn spasi_dan_pembungkus_dibuang() {
+        assert_eq!(run("   https://www.bca.co.id/   ").input, "https://www.bca.co.id/");
+        assert_eq!(run("<https://www.bca.co.id/>").input, "https://www.bca.co.id/");
+        assert_eq!(run("(https://www.bca.co.id/login).").input, "https://www.bca.co.id/login");
+    }
+    #[test]
+    fn tautan_diambil_dari_teks() {
+        let a = run("Klik https://bca-verifikasi.xyz/login sekarang ya, atau https://bit.ly/xx");
+        assert!(a.error.is_none());
+        assert_eq!(a.input, "https://bca-verifikasi.xyz/login");
+        assert_eq!(a.note.as_deref(), Some("EXTRACTED"));
+        assert_eq!(a.extra_links, 1);
+        assert_eq!(a.level, "tinggi");
+    }
+    #[test]
+    fn garis_miring_terbalik_diperbaiki() {
+        let a = run("https:\\\\www.bca.co.id\\login");
+        assert!(a.error.is_none());
+        assert_eq!(a.parts.unwrap().registrable, "bca.co.id");
+    }
+    #[test]
+    fn platform_hosting_gratis() {
+        let a = run("https://bca-verifikasi.vercel.app/login");
+        assert!(has(&a, "L16") && has(&a, "L17"));
+        assert_eq!(a.parts.as_ref().unwrap().registrable, "bca-verifikasi.vercel.app");
+        assert_eq!(a.level, "tinggi");
+        let b = run("https://my-portfolio.vercel.app/");
+        assert!(has(&b, "L16") && !has(&b, "L17"));
+        assert_eq!(b.level, "ringan");
+    }
+    #[test]
+    fn ip_yang_disamarkan() {
+        let a = run("http://0x7f.0.0.1/login");
+        assert!(has(&a, "L03") && has(&a, "L20"));
+        assert!(has(&run("http://3232235777/"), "L20"));
+        assert!(!has(&run("http://192.168.1.10/"), "L20"));
+    }
+    #[test]
+    fn host_terenkode() {
+        let a = run("https://bca%2eco%2eid.evil.xyz/");
+        assert!(a.error.is_none() && has(&a, "L19"));
+    }
+    #[test]
+    fn parameter_kredensial() {
+        assert!(has(&run("https://situs.example/login?user=a&password=123"), "L18"));
+        assert!(!has(&run("https://situs.example/reset?token=abc"), "L18"));
+    }
+    #[test]
+    fn platform_konten_pengguna() {
+        assert!(has(&run("https://forms.gle/abc"), "L21"));
+        assert!(has(&run("https://docs.google.com/forms/d/x"), "L21"));
+        assert!(!has(&run("https://docs.google.com/document/d/x"), "L21"));
+    }
+    #[test]
+    fn akhiran_dua_tingkat_luar_negeri() {
+        assert_eq!(run("https://www.bbc.co.uk/news").parts.unwrap().registrable, "bbc.co.uk");
     }
 }

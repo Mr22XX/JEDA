@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { analyze, analyzeLink, type Analysis, type LinkParts } from "../engine";
-import { SAMPLES, LINK_SAMPLES, type Goto } from "../content";
+import { SAMPLES, SAMPLES_EN, LINK_SAMPLES, type Goto } from "../content";
 import { useI18n } from "../i18n";
 import Result from "../components/Result";
 import MessageBox from "../components/MessageBox";
@@ -46,7 +46,7 @@ function Empty({ mode }: { mode: Mode }) {
 }
 
 export default function Cek({ goto }: { goto: Goto }) {
-  const { t, linkError } = useI18n();
+  const { t, lang, linkError } = useI18n();
   const [mode, setMode] = useState<Mode>("pesan");
   const [text, setText] = useState("");
   const [link, setLink] = useState("");
@@ -54,6 +54,7 @@ export default function Cek({ goto }: { goto: Goto }) {
   const [result, setResult] = useState<Analysis | null>(null);
   const [parts, setParts] = useState<LinkParts | null>(null);
   const [error, setError] = useState("");
+  const [extra, setExtra] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLElement>(null);
@@ -66,7 +67,7 @@ export default function Cek({ goto }: { goto: Goto }) {
       .from("[data-in=fade]", { y: 20, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.45");
   }, { scope: root });
 
-  function reset() { setResult(null); setParts(null); setError(""); }
+  function reset() { setResult(null); setParts(null); setError(""); setExtra(null); }
   function switchMode(m: Mode) { if (m !== mode) { setMode(m); reset(); } }
 
   async function run() {
@@ -75,11 +76,11 @@ export default function Cek({ goto }: { goto: Goto }) {
     setBusy(true); setError("");
     try {
       if (mode === "pesan") {
-        setResult(await analyze(text)); setChecked(text); setParts(null);
+        setResult(await analyze(text)); setChecked(text); setParts(null); setExtra(null);
       } else {
         const r = await analyzeLink(link);
         if (r.error) { setResult(null); setParts(null); setError(r.error); return; }
-        setResult(r); setChecked(r.input); setParts(r.parts);
+        setResult(r); setChecked(r.input); setParts(r.parts); setExtra(r.note === "EXTRACTED" ? r.extra_links : null);
       }
       requestAnimationFrame(() => {
         if (window.innerWidth >= 1024) return;
@@ -93,7 +94,7 @@ export default function Cek({ goto }: { goto: Goto }) {
 
   // Pesan galat disimpan mentah lalu diterjemahkan saat ditampilkan, jadi ikut berganti bila bahasa diganti.
   const errText = !error ? "" : error === "ENGINE_NOT_BUILT" ? t.cek.errNotBuilt : error === "ENGINE_OUTDATED" ? t.cek.errOutdated : error === "GENERIC" ? t.cek.errGeneric : linkError(error);
-  const samples = SAMPLES.map((s, i) => ({ name: t.cek.sampleNames[i] ?? s.name, text: s.text }));
+  const samples = (lang === "en" ? SAMPLES_EN : SAMPLES).map((s, i) => ({ name: t.cek.sampleNames[i] ?? s.name, text: s.text }));
   const linkSamples = LINK_SAMPLES.map((s, i) => ({ name: t.cek.linkSampleNames[i] ?? s.name, text: s.text }));
 
   return (
@@ -135,6 +136,7 @@ export default function Cek({ goto }: { goto: Goto }) {
             </div>
           ) : result ? (
             <div className="space-y-4">
+              {mode === "tautan" && extra !== null && <p className="rounded-xl bg-brand/10 p-3 text-sm leading-relaxed">{t.cek.linkExtracted(extra)}</p>}
               <Result result={result} text={checked} mode={mode} onGoto={goto} />
               {mode === "tautan" && parts && <LinkPartsCard parts={parts} />}
             </div>
