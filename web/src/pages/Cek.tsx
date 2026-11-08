@@ -32,7 +32,7 @@ function Empty({ mode }: { mode: Mode }) {
   }, { scope: ref });
   const points = mode === "pesan" ? t.cek.emptyPesan : t.cek.emptyTautan;
   return (
-    <div ref={ref} className="rounded-3xl border border-line bg-surface/70 p-8 text-center backdrop-blur sm:p-12">
+    <div ref={ref} className="rounded-3xl border border-line bg-surface/70 p-6 text-center backdrop-blur sm:p-12">
       <div data-breathe className="mx-auto flex w-fit gap-3" aria-hidden>
         <i data-bar className="h-28 w-8 rounded-2xl bg-linear-to-b from-brand to-calm" />
         <i data-bar className="h-28 w-8 rounded-2xl bg-linear-to-b from-brand to-calm" />
@@ -99,19 +99,19 @@ export default function Cek({ goto }: { goto: Goto }) {
 
   return (
     <div ref={root}>
-      <main className="mx-auto grid max-w-6xl gap-10 px-5 pb-12 pt-6 sm:pt-10 lg:grid-cols-2 lg:gap-14 lg:pt-16">
-        <section>
-          <h1 className="text-[2.5rem] font-extrabold leading-[1.06] tracking-tight sm:text-5xl lg:text-6xl">
+      <main className="mx-auto grid max-w-6xl gap-8 px-4 pb-12 pt-6 sm:gap-10 sm:px-5 sm:pt-10 lg:grid-cols-2 lg:gap-14 lg:pt-16">
+        <section className="min-w-0">
+          <h1 className="text-[clamp(2rem,9vw,2.5rem)] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
             <span className="block overflow-hidden pb-1"><span data-in="line" className="block">{t.cek.h1a}</span></span>
             <span className="block overflow-hidden pb-1"><span data-in="line" className="block">{t.cek.h1b}</span></span>
           </h1>
-          <p data-in="fade" className="mt-5 max-w-prose text-lg leading-relaxed text-muted">{t.cek.lead}</p>
+          <p data-in="fade" className="mt-4 max-w-prose text-base leading-relaxed text-muted sm:mt-5 sm:text-lg">{t.cek.lead}</p>
           <div data-in="fade"><ThreeSteps /></div>
 
-          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-7 inline-flex rounded-full border-2 border-edge bg-surface p-1">
+          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-6 flex w-full rounded-full border-2 border-edge bg-surface p-1 sm:mt-7 sm:inline-flex sm:w-auto">
             {([["pesan", t.cek.modePesan], ["tautan", t.cek.modeTautan]] as const).map(([m, l]) => (
               <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${mode === m ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{l}</button>
+                className={`min-h-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none ${mode === m ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{l}</button>
             ))}
           </div>
 
@@ -128,7 +128,7 @@ export default function Cek({ goto }: { goto: Goto }) {
           {mode === "pesan" && t.cek.langNote && <p data-in="fade" className="mt-3 max-w-prose rounded-xl bg-brand/10 p-3 text-sm leading-relaxed">{t.cek.langNote}</p>}
         </section>
 
-        <section data-in="fade" ref={resultRef} aria-live="polite" className="scroll-mt-20 lg:sticky lg:top-8 lg:self-start">
+        <section data-in="fade" ref={resultRef} aria-live="polite" className="min-w-0 scroll-mt-24 lg:sticky lg:top-24 lg:self-start">
           {error ? (
             <div role="alert" className="rounded-3xl border border-tinggi bg-tinggi/10 p-5">
               <h2 className="font-bold text-tinggi">{t.cek.errTitle}</h2>

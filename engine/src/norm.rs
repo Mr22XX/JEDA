@@ -246,7 +246,7 @@ pub fn normalize(input: &str) -> Norm {
 
     // 2. Angka pengganti huruf: hanya di kata yang hurufnya lebih banyak dari angkanya, atau yang angkanya
     //    terselip di tengah huruf ("z3u5"). "1x24", "Rp50", "Rp1", dan angka ekor seperti "maxasia777" dibiarkan.
-    //    Pengali seperti "x5OO" dibaca sebagai "x500".
+    //    Pengali seperti "x5OO" dibaca sebagai "x500". Potongan yang berupa tautan tidak diubah.
     let m = v.len();
     let mut i = 0;
     while i < m {
@@ -277,7 +277,8 @@ pub fn normalize(input: &str) -> Norm {
                     .iter()
                     .any(|&k| v[i..k].iter().any(|x| x.c.is_alphabetic()) && v[k + 1..j].iter().any(|x| x.c.is_alphabetic()));
                 let trailing_only = digits >= 2 && digit_idx[0] == j - digits;
-                if letters >= 2 && (letters > digits || internal) && !trailing_only {
+                let in_url = v[i..j].iter().any(|x| x.prot);
+                if letters >= 2 && (letters > digits || internal) && !trailing_only && !in_url {
                     for x in &mut v[i..j] {
                         x.c = leet(x.c);
                     }

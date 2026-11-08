@@ -27,8 +27,8 @@ export default function MessageBox({ value, onChange, onSubmit, onClear, busy, s
   const near = value.length > MAX - 300;
   return (
     <div className="rounded-3xl border-2 border-edge bg-surface shadow-xl shadow-brand/10 transition focus-within:border-transparent focus-within:shadow-2xl focus-within:shadow-brand/25">
-      <div className="flex h-14 items-center justify-between gap-3 px-5">
-        <label htmlFor="msg" className="flex items-center gap-2 text-sm font-semibold">
+      <div className="flex min-h-14 items-center justify-between gap-3 px-4 sm:px-5">
+        <label htmlFor="msg" className="flex min-w-0 items-center gap-2 text-sm font-semibold">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-brand">
             <path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12Z" />
           </svg>
@@ -40,31 +40,31 @@ export default function MessageBox({ value, onChange, onSubmit, onClear, busy, s
         </button>
       </div>
 
-      <div className="relative">
+      <div>
         <textarea
           id="msg" ref={ref} value={value} maxLength={MAX}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") onSubmit(); }}
           placeholder={t.box.placeholder}
-          className="block h-44 w-full resize-none overflow-y-auto bg-transparent px-5 pb-3 text-base leading-relaxed outline-none [scrollbar-gutter:stable] placeholder:text-muted/70 sm:h-52"
+          className="block h-40 w-full resize-none overflow-y-auto bg-transparent px-4 pb-3 text-base leading-relaxed outline-none [scrollbar-gutter:stable] placeholder:text-muted/70 sm:h-48 sm:px-5"
         />
-        {!value && (
-          <div className="absolute inset-x-4 bottom-3 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <span className="shrink-0 text-sm text-muted">{t.box.tryExamples}</span>
-            {samples.map((s) => (
-              <button key={s.name} type="button" onClick={() => onChange(s.text)}
-                className="chip shrink-0">{s.name}</button>
-            ))}
-          </div>
-        )}
       </div>
 
-      <div className="flex h-16 items-center justify-between gap-3 border-t border-line px-5">
+      {/* Contoh ada di baris sendiri (bukan menimpa kotak teks), supaya tidak menutupi placeholder di layar sempit. */}
+      <div className="flex items-center gap-2 overflow-x-auto px-4 pb-3 pt-1 [scrollbar-width:none] sm:px-5 [&::-webkit-scrollbar]:hidden">
+        <span className="shrink-0 text-sm text-muted">{t.box.tryExamples}</span>
+        {samples.map((s) => (
+          <button key={s.name} type="button" onClick={() => onChange(s.text)}
+            className="chip shrink-0 whitespace-nowrap">{s.name}</button>
+        ))}
+      </div>
+
+      <div className="flex h-16 items-center justify-between gap-3 border-t border-line px-4 sm:px-5">
         <span aria-live="polite" className={`min-w-0 truncate text-sm tabular-nums ${hint || near ? "text-tinggi" : "text-muted"}`}>
           {hint || (value ? `${value.length}/${MAX}` : "")}
         </span>
         <button type="button" onClick={onSubmit} disabled={busy || !value.trim()} aria-busy={busy} title="Ctrl + Enter"
-          className="h-11 w-44 shrink-0 rounded-xl bg-brand font-semibold text-on-brand shadow-lg shadow-brand/30 transition hover:brightness-110 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
+          className="h-11 w-36 shrink-0 sm:w-44 rounded-xl bg-brand font-semibold text-on-brand shadow-lg shadow-brand/30 transition hover:brightness-110 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
           {t.box.submitMsg}
         </button>
       </div>

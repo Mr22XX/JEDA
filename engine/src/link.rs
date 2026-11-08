@@ -29,11 +29,13 @@ const HOSTING: &[&str] = &[
 const USER_CONTENT: &[&str] = &["forms.gle", "sites.google.com", "linktr.ee", "bio.link"];
 const CRED_KEYS: &[&str] = &["password", "passwd", "pwd", "pass", "otp", "pin", "cvv", "cardnumber", "card", "ssn"];
 const CHEAP_TLDS: &[&str] = &["xyz", "top", "click", "icu", "site", "online", "vip", "cc", "buzz", "cfd", "sbs", "monster"];
-const SHORTENERS: &[&str] = &["bit.ly", "tinyurl.com", "cutt.ly", "s.id", "t.ly", "is.gd", "rb.gy", "shorturl.at", "ow.ly", "ln.run", "lnkl.st", "rebrand.ly", "v.gd", "clck.ru", "bitly.ws", "shorturl.gg"];
-const BAIT: &[&str] = &["login", "masuk", "verifikasi", "verify", "secure", "akun", "account", "update", "perbarui", "konfirmasi", "klaim", "claim", "hadiah", "bonus", "promo", "undian", "pencairan", "reset"];
+const SHORTENERS: &[&str] = &["bit.ly", "tinyurl.com", "cutt.ly", "s.id", "t.ly", "is.gd", "rb.gy", "shorturl.at", "ow.ly", "ln.run", "lnkl.st", "rebrand.ly", "v.gd", "clck.ru", "bitly.ws", "shorturl.gg","bitly.com", "wa.link", "bit.do", "tiny.cc", "soo.gd", "kutt.it", "adf.ly", "buff.ly", "shorturl.asia", "qrco.de", "urlz.fr", "tr.ee", "wde.la"];
+const BAIT: &[&str] = &["login", "masuk", "verifikasi", "verify", "secure", "akun", "account", "update", "perbarui", "konfirmasi", "klaim", "claim", "hadiah", "bonus", "promo", "undian", "pencairan", "reset", "claim", "saldo", "reward", "winner", "withdraw", "confirm", "giveaway", "voucher", "gratis", "penarikan"];
 /// Kata khas situs judi online dan angka merek yang sering menempel di belakang nama situs judi.
 const GAMBLE: &[&str] = &["gacor", "maxwin", "togel", "judol", "casino", "kasino", "sbobet", "jepe", "wede", "scatter", "mahjong", "jackpot", "baccarat", "sicbo"];
 const GAMBLE_NUM: &[&str] = &["77", "88", "138", "168", "188", "303", "777", "888", "999"];
+const GAMBLE_TOKEN: &[&str] = &["slot", "slots", "rtp", "toto", "zeus", "bonanza"];
+const GAMBLE_WEAK: &[&str] = &["depo", "wd", "jp", "wede"];
 const BAD_EXT: &[&str] = &["apk", "exe", "msi", "scr", "bat", "cmd", "vbs", "jar"];
 
 type R = (usize, usize);
@@ -291,16 +293,25 @@ pub fn analyze_link(raw: &str, brands: &[String]) -> LinkAnalysis {
             add(&s, &mut out, "L07", 2, registrable, "Domain utama berisi banyak tanda hubung atau angka, pola yang sering muncul pada situs tiruan.");
         }
         {
-            // Nama domain bernuansa judi online ("gacor88", "maxasia777").
+            // Nama domain bernuansa judi online ("gacor88", "maxasia777", "promo-slot").
             let raw = first_label.to_lowercase();
             let folded = domain::fold(first_label);
-            let word = GAMBLE.iter().any(|g| raw.contains(g) || folded.contains(g)) || (raw.contains("slot") && raw.chars().any(|c| c.is_ascii_digit()));
+            let toks: Vec<&str> = raw.split(|c: char| !c.is_alphanumeric()).filter(|t| !t.is_empty()).collect();
+            let word = GAMBLE.iter().any(|g| raw.contains(g) || folded.contains(g))
+                || (raw.contains("slot") && raw.chars().any(|c| c.is_ascii_digit()))
+                || toks.iter().any(|t| GAMBLE_TOKEN.contains(t));
+            let weak = toks.len() > 1 && toks.iter().any(|t| GAMBLE_WEAK.contains(t));
             let digits_tail = raw.chars().filter(|c| c.is_alphabetic()).count() >= 3 && GAMBLE_NUM.iter().any(|d| raw.ends_with(d));
             if word {
                 add(&s, &mut out, "L22", 4, registrable, "Nama domain memuat istilah khas situs judi online. Judi online ilegal di Indonesia dan situs seperti ini sering menjebak korban agar terus menyetor.");
             } else if digits_tail {
                 add(&s, &mut out, "L23", 2, registrable, "Nama domain berakhiran angka yang lazim dipakai situs judi online, misalnya 777 atau 88. Pola ini tidak selalu berbahaya, tetapi perlu dicek.");
+            } else if weak {
+                add(&s, &mut out, "L24", 2, registrable, "Nama domain memuat singkatan khas situs judi online, seperti depo, wd, atau jp. Pola ini tidak selalu berbahaya, tetapi perlu dicek.");
             }
+        }
+            if labels.iter().any(|l| lower(*l).starts_with("xn--")) {
+            add(&s, &mut out, "L25", 3, p.host, "Nama domain memakai punycode (xn--) yang bisa menyamarkan huruf mirip sebagai nama resmi.");
         }
         if let Some((r, _)) = tokens(host, p.host.0).into_iter().find(|(_, t)| BAIT.contains(&t.as_str())) {
             add(&s, &mut out, "L10", 2, r, "Nama domain memuat kata pancingan seperti login atau verifikasi. Situs resmi biasanya tidak menaruhnya di nama domain.");
@@ -451,5 +462,13 @@ mod tests {
     #[test]
     fn akhiran_dua_tingkat_luar_negeri() {
         assert_eq!(run("https://www.bbc.co.uk/news").parts.unwrap().registrable, "bbc.co.uk");
+    }
+
+    #[test]
+    fn token_judi_dan_punycode() {
+        assert!(has(&run("https://promo-slot.invalid/"), "L22"));
+        assert!(has(&run("https://depo-minimal.invalid/"), "L24"));
+        assert!(has(&run("https://xn--bca-9ua.com/"), "L25"));
+        assert!(!has(&run("https://www.bca.co.id/"), "L24"));
     }
 }
