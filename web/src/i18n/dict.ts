@@ -58,7 +58,7 @@ export const ID = {
     footnote: "Domain utama ditebak dengan daftar akhiran sederhana dan daftar platform hosting gratis, jadi bisa meleset untuk akhiran yang jarang.",
     anatomy: "Struktur tautan", legendMain: "Domain utama: penentu pemilik situs", legendOther: "Bagian lain", legendFake: "Pengecoh sebelum tanda @",
   },
-  facts: { title: "Kenapa ini penting", sub: "Angka dari laporan nyata masyarakat Indonesia, bukan simulasi." },
+  facts: { title: "Kenapa ini penting", sub: "Angka dari laporan nyata masyarakat Indonesia." },
   latihan: {
     h1: "Latih insting kamu.", lead: "Pilih satu situasi, lalu tentukan balasanmu. Setiap pilihan langsung diberi penjelasan taktik apa yang dipakai penipu. Semua nama dan tautan di simulasi ini fiktif.",
     start: "Mulai simulasi", done: "✓ Selesai. Main lagi", back: "Semua skenario", source: "Sumber", chatAria: "Simulasi chat", simNote: "Simulasi, semua fiktif",
@@ -152,7 +152,7 @@ export const EN: Dict = {
     footnote: "The main domain is guessed from a simple list of endings and free-hosting platforms, so it can be wrong for rare endings.",
     anatomy: "Link structure", legendMain: "Main domain: decides who owns the site", legendOther: "Other parts", legendFake: "Decoy before the @ sign",
   },
-  facts: { title: "Why this matters", sub: "Figures from real reports by people in Indonesia, not a simulation." },
+  facts: { title: "Why this matters", sub: "Figures from real reports by people in Indonesia" },
   latihan: {
     h1: "Train your instincts.", lead: "Pick a situation, then decide your reply. Every choice gets instant feedback on which tactic the scammer used. All names and links in these simulations are fictional.",
     start: "Start simulation", done: "✓ Done. Play again", back: "All scenarios", source: "Source", chatAria: "Chat simulation", simNote: "Simulation, all fictional",
