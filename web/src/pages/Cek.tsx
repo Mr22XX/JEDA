@@ -27,20 +27,49 @@ function Empty({ mode }: { mode: Mode }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
     if (reduced()) return;
-    gsap.from("[data-bar]", { scaleY: 0, transformOrigin: "50% 100%", duration: 0.8, stagger: 0.14, ease: "back.out(1.6)", delay: 0.6 });
-    gsap.to("[data-breathe]", { scale: 0.9, duration: 1.8, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 1.6 });
+    gsap.from(ref.current, { y: 20, opacity: 0, duration: 0.6, ease: "power2.out", delay: 0.2 });
   }, { scope: ref });
   const points = mode === "pesan" ? t.cek.emptyPesan : t.cek.emptyTautan;
   return (
-    <div ref={ref} className="rounded-3xl border border-line bg-surface/70 p-6 text-center backdrop-blur sm:p-12">
-      <div data-breathe className="mx-auto flex w-fit gap-3" aria-hidden>
-        <i data-bar className="h-28 w-8 rounded-2xl bg-linear-to-b from-brand to-calm" />
-        <i data-bar className="h-28 w-8 rounded-2xl bg-linear-to-b from-brand to-calm" />
+    <div ref={ref} className="glow-card-orange p-6 sm:p-9 flex flex-col justify-between min-h-[440px] text-left group">
+      <div>
+        {/* Top-left squircle icon */}
+        <div className="flex size-12 items-center justify-center rounded-2xl border border-line bg-surface text-brand shadow-sm backdrop-blur">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M7 7h10M7 12h10M7 17h6" />
+          </svg>
+        </div>
+
+        <h2 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">{t.cek.emptyTitle}</h2>
+        
+        <p className="mt-2.5 text-sm sm:text-base text-muted leading-relaxed">
+          {mode === "pesan"
+            ? "Tempel pesan mencurigakan di sebelah kiri. JEDA membedah manipulasi psikologis & tanda bahaya secara lokal di perangkatmu."
+            : "Periksa struktur domain, subdomain, dan pola tautan yang berpotensi mengecoh sebelum kamu membukanya."}
+        </p>
+
+        <ul className="mt-6 space-y-3 text-left text-sm">
+          {points.map((p) => (
+            <li key={p} className="flex items-center gap-3">
+              <span className="size-2 shrink-0 rounded-full bg-brand shadow-[0_0_8px_var(--brand)]" aria-hidden />
+              <span className="text-ink font-medium leading-snug">{p}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <h2 className="mt-8 text-2xl font-bold">{t.cek.emptyTitle}</h2>
-      <ul className="mx-auto mt-4 max-w-xs space-y-2 text-left text-sm text-muted">
-        {points.map((p) => <li key={p} className="flex items-center gap-2"><span className="size-2 shrink-0 rounded-full bg-calm" aria-hidden />{p}</li>)}
-      </ul>
+
+      {/* Bottom action bar with arrow */}
+      <div className="mt-8 pt-5 border-t border-line flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-brand flex items-center gap-2">
+          <span className="size-2 rounded-full bg-brand shadow-[0_0_8px_var(--brand)] animate-pulse" />
+          100% Di Perangkatmu
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-ink transition group-hover:text-brand">
+          <span>Siap Cek</span>
+          <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+        </span>
+      </div>
     </div>
   );
 }
@@ -73,14 +102,15 @@ export default function Cek({ goto }: { goto: Goto }) {
   async function run() {
     const input = mode === "pesan" ? text : link;
     if (!input.trim() || busy) return;
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setExtra(null);
     try {
       if (mode === "pesan") {
-        setResult(await analyze(text)); setChecked(text); setParts(null); setExtra(null);
+        setResult(await analyze(text)); setChecked(text); setParts(null);
       } else {
         const r = await analyzeLink(link);
         if (r.error) { setResult(null); setParts(null); setError(r.error); return; }
-        setResult(r); setChecked(r.input); setParts(r.parts); setExtra(r.note === "EXTRACTED" ? r.extra_links : null);
+        setResult(r); setChecked(r.input); setParts(r.parts);
+        setExtra(r.note === "EXTRACTED" ? r.extra_links : null);
       }
       requestAnimationFrame(() => {
         if (window.innerWidth >= 1024) return;
@@ -108,10 +138,10 @@ export default function Cek({ goto }: { goto: Goto }) {
           <p data-in="fade" className="mt-4 max-w-prose text-base leading-relaxed text-muted sm:mt-5 sm:text-lg">{t.cek.lead}</p>
           <div data-in="fade"><ThreeSteps /></div>
 
-          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-6 flex w-full rounded-full border-2 border-edge bg-surface p-1 sm:mt-7 sm:inline-flex sm:w-auto">
+          <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-6 flex w-full rounded-full border border-line bg-surface p-1 sm:mt-7 sm:inline-flex sm:w-auto backdrop-blur">
             {([["pesan", t.cek.modePesan], ["tautan", t.cek.modeTautan]] as const).map(([m, l]) => (
               <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m}
-                className={`min-h-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none ${mode === m ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{l}</button>
+                className={`min-h-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none ${mode === m ? "bg-gradient-to-r from-amber-500 to-orange-600 text-neutral-950 font-bold shadow-[0_0_16px_rgba(245,158,11,0.35)]" : "text-muted hover:text-ink"}`}>{l}</button>
             ))}
           </div>
 

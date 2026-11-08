@@ -1,10 +1,16 @@
-/** Logo JEDA: dua batang "jeda". Bentuk dan gradasinya sama dengan favicon (public/favicon.svg). */
+/** Logo JEDA: dua batang "jeda" dengan gradien oranye/amber menyala. */
 export default function Logo({ height = 22 }: { height?: number }) {
-  const bar = { width: height * 0.28, height, borderRadius: height * 0.12 };
+  const bar = {
+    width: height * 0.28,
+    height,
+    borderRadius: height * 0.14,
+    background: "linear-gradient(180deg, #F59E0B 0%, #EA580C 100%)",
+    boxShadow: "0 0 10px rgba(245, 158, 11, 0.45)",
+  };
   return (
-    <span className="flex" style={{ gap: height * 0.2 }} aria-hidden>
-      <i className="bg-linear-to-b from-brand to-calm" style={bar} />
-      <i className="bg-linear-to-b from-brand to-calm" style={bar} />
+    <span className="inline-flex items-center shrink-0" style={{ gap: height * 0.2 }} aria-hidden>
+      <i className="block transition-transform duration-200 hover:scale-105" style={bar} />
+      <i className="block transition-transform duration-200 hover:scale-105" style={bar} />
     </span>
   );
 }

@@ -1,74 +1,186 @@
 @import "tailwindcss";
 
+/* ─── JEDA Ember/Orange Design System ─── */
 :root {
-  --paper: #f5f4ff; --surface: #ffffff; --ink: #15123b; --muted: #5e5a8a; --line: #e1defa;
-  --brand: #5b3fff; --on-brand: #ffffff; --edge: #7f78c8;
-  --calm: #0e9f7e; --ringan: #c98200; --sedang: #e5640f; --tinggi: #e11d48;
+  /* Dark Mode default: Pitch dark with warm amber/orange glow */
+  --paper: #070605;
+  --surface: #12100e;
+  --surface-card: #181512;
+  --ink: #ffffff;
+  --muted: #a39b92;
+  --line: rgba(255, 255, 255, 0.08);
+  --edge: rgba(255, 255, 255, 0.14);
+
+  /* Brand: Radiant Amber to Flame Orange */
+  --brand: #f59e0b;
+  --brand-flame: #ea580c;
+  --brand-deep: #c2410c;
+  --on-brand: #070605;
+
+  /* Semantic levels */
+  --calm: #10b981;
+  --ringan: #f59e0b;
+  --sedang: #ea580c;
+  --tinggi: #ef4444;
+
+  /* Glow tokens */
+  --glow-orange: rgba(245, 158, 11, 0.28);
+  --glow-orange-strong: rgba(234, 88, 12, 0.45);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --paper: #faf7f4;
+  --surface: #ffffff;
+  --surface-card: #f5ede6;
+  --ink: #1a1613;
+  --muted: #736961;
+  --line: #e8e2dc;
+  --edge: #d6cec6;
+  --brand: #ea580c;
+  --brand-flame: #c2410c;
+  --brand-deep: #9a3412;
+  --on-brand: #ffffff;
+  --calm: #059669;
+  --ringan: #d97706;
+  --sedang: #ea580c;
+  --tinggi: #dc2626;
+  --glow-orange: rgba(234, 88, 12, 0.15);
+  --glow-orange-strong: rgba(234, 88, 12, 0.25);
   color-scheme: light;
 }
-/* Tanpa pilihan manual, ikuti pengaturan sistem. Pilihan manual disimpan sebagai data-theme di <html>. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
-    --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
-    --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
-}
+
 @theme inline {
-  --color-paper: var(--paper); --color-surface: var(--surface); --color-ink: var(--ink);
-  --color-muted: var(--muted); --color-line: var(--line); --color-brand: var(--brand);
-  --color-on-brand: var(--on-brand); --color-edge: var(--edge); --color-calm: var(--calm); --color-ringan: var(--ringan);
-  --color-sedang: var(--sedang); --color-tinggi: var(--tinggi);
-  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-card: var(--surface-card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-edge: var(--edge);
+  --color-brand: var(--brand);
+  --color-brand-flame: var(--brand-flame);
+  --color-brand-deep: var(--brand-deep);
+  --color-on-brand: var(--on-brand);
+  --color-calm: var(--calm);
+  --color-ringan: var(--ringan);
+  --color-sedang: var(--sedang);
+  --color-tinggi: var(--tinggi);
+  --font-sans: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+
+/* ─── Base Body & Subtle Tech Grid ─── */
 body {
-  font-family: var(--font-sans); color: var(--ink); min-height: 100vh;
-  background:
-    radial-gradient(50rem 28rem at 85% -5%, color-mix(in srgb, var(--brand) 16%, transparent), transparent),
-    radial-gradient(40rem 24rem at -5% 35%, color-mix(in srgb, var(--calm) 10%, transparent), transparent),
-    var(--paper);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  min-height: 100vh;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(65rem 35rem at 50% -12%, rgba(245, 158, 11, 0.14), transparent 70%);
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+  overflow-x: hidden;
 }
-/* Kontrol interaktif: batasnya memakai --edge (kontras sekitar 3,9:1 di mode terang, 4,3:1 di mode gelap), bukan --line yang hampir tak terlihat. */
+
+:root[data-theme="light"] body {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    radial-gradient(65rem 35rem at 50% -12%, rgba(234, 88, 12, 0.08), transparent 70%);
+}
+
+/* ─── The Iconic Glowing Orange Card ─── */
+.glow-card-orange {
+  position: relative;
+  border-radius: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 115%, rgba(245, 158, 11, 0.85) 0%, rgba(234, 88, 12, 0.58) 32%, rgba(180, 50, 10, 0.28) 58%, rgba(20, 16, 14, 0) 80%),
+    linear-gradient(180deg, #181412 0%, #120f0d 60%, #17110c 100%);
+  box-shadow:
+    0 0 50px -10px rgba(234, 88, 12, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glow-card-orange:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow:
+    0 0 65px -5px rgba(234, 88, 12, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+:root[data-theme="light"] .glow-card-orange {
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 115%, rgba(245, 158, 11, 0.35) 0%, rgba(234, 88, 12, 0.18) 32%, rgba(255, 255, 255, 0) 75%),
+    #ffffff;
+  border-color: rgba(234, 88, 12, 0.25);
+  box-shadow: 0 10px 40px -10px rgba(234, 88, 12, 0.15);
+}
+
+/* ─── Interactive Buttons & Chips ─── */
 @layer components {
   .btn-2, .btn-back {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem;
     padding: .5rem 1.1rem; border-radius: .75rem; font-weight: 700; line-height: 1.2; text-align: left;
-    background: var(--surface); transition: background-color .15s, border-color .15s, transform .15s;
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    transition: background-color .15s, border-color .15s, transform .15s;
   }
-  .btn-2 { border: 2px solid var(--brand); color: var(--brand); }
+  .btn-2 { border: 1.5px solid var(--brand); color: var(--brand); }
   .btn-2:hover { background: color-mix(in srgb, var(--brand) 14%, var(--surface)); }
   .btn-2.is-danger { border-color: var(--tinggi); color: var(--tinggi); }
   .btn-2.is-danger:hover { background: color-mix(in srgb, var(--tinggi) 14%, var(--surface)); }
   .btn-2:active, .btn-back:active { transform: scale(.98); }
   .btn-sm { min-height: 2.25rem; padding: .25rem .9rem; border-radius: 9999px; font-size: .875rem; }
-  .btn-back { border: 2px solid var(--edge); color: var(--ink); border-radius: 9999px; padding: .4rem 1rem .4rem .75rem; font-size: .9375rem; }
+  .btn-back { border: 1.5px solid var(--edge); color: var(--ink); border-radius: 9999px; padding: .4rem 1rem .4rem .75rem; font-size: .9375rem; }
   .btn-back:hover { border-color: var(--brand); color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, var(--surface)); }
+  
   .chip {
-    border: 1.5px solid color-mix(in srgb, var(--brand) 55%, transparent); background: color-mix(in srgb, var(--brand) 12%, var(--surface));
-    color: var(--brand); font-weight: 700; border-radius: 9999px; padding: .375rem .85rem; font-size: .875rem; transition: background-color .15s, transform .15s;
+    border: 1px solid var(--line);
+    background: var(--surface-card);
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 9999px;
+    padding: .375rem .85rem;
+    font-size: .875rem;
+    transition: all .15s ease;
   }
-  .chip:hover { background: color-mix(in srgb, var(--brand) 22%, var(--surface)); }
+  .chip:hover {
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+    color: var(--brand);
+  }
   .chip:active { transform: scale(.95); }
-  .lnk { color: var(--brand); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-  .lnk:hover { text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+
+  .lnk {
+    color: var(--brand);
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .lnk:hover {
+    opacity: 0.8;
+    text-decoration: none !important;
+  }
   .arrow { transition: transform .15s; }
   .btn-2:hover .arrow-r, button:hover > .arrow-r, a:hover > .arrow-r { transform: translateX(3px); }
   .btn-back:hover .arrow-l { transform: translateX(-3px); }
 }
-:focus-visible:not(textarea) { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+:focus-visible:not(textarea) { outline: 2px solid var(--brand); outline-offset: 2px; }
 textarea:focus, textarea:focus-visible, #lnk:focus, #lnk:focus-visible { outline: none; }
 
-/* Stabilo: GSAP menganimasikan background-size dari 0% ke 100% */
+/* Stabilo / Highlight marker */
 .sweep {
-  --hl: color-mix(in srgb, var(--tinggi) 26%, transparent);
+  --hl: color-mix(in srgb, var(--tinggi) 28%, transparent);
   background-color: transparent; color: inherit; border-radius: 4px; padding: 0 2px;
   background-image: linear-gradient(var(--hl), var(--hl)); background-repeat: no-repeat;
   background-position: left center; background-size: 0% 100%;
   border-bottom: 2px solid var(--tinggi); -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
