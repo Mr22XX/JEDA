@@ -25,7 +25,7 @@ export const ID = {
   footer: {
     tagline: "Ragu? Jeda dulu, cek dulu.", blurb: "Alat bantu untuk mengenali pesan dan tautan mencurigakan, berlatih mengambil keputusan, dan tahu langkah saat sudah terlanjur.",
     menu: "Menu", privacyTitle: "", privacy: "Pesan dan tautan diproses di browsermu. Tanpa akun, tanpa database, tidak dikirim ke server mana pun.",
-    disclaimer: "JEDA alat bantu berbasis pola, bukan jaminan aman. Tetap verifikasi lewat kanal resmi.", top: "Kembali ke atas", copy: (y: number) => `© ${y} JEDA || Kalibara Project`,
+    disclaimer: "JEDA alat bantu berbasis pola, bukan jaminan aman. Tetap verifikasi lewat kanal resmi.", top: "Kembali ke atas", copy: (y: number) => `© ${y} JEDA || Kalibata Project`,
   },
   steps: { label: "Tiga langkah JEDA", items: ["Kenali", "Belajar", "Bertindak"] },
   cek: {
