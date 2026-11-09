@@ -203,34 +203,11 @@ Pesan ditulis **setelah aturan dikunci** dengan kata-kata yang sengaja berbeda, 
 
 Dengan hanya 10 contoh per bahasa, ketidakpastiannya besar. Selang kepercayaan 95% kasarnya sekitar 24% sampai 76% (Indonesia) dan 31% sampai 83% (Inggris). Nol salah-tuduh dari 6 pesan sah terlalu sedikit untuk menyimpulkan bahwa tingkat salah-tuduh rendah.
 
-### 6.3 Temuan selama pengujian
-
-1. **Imbauan keamanan bank salah ditandai.** Uji pertama menemukan 3 dari 12 pesan sah ("jangan berikan kode OTP", "pihak bank tidak pernah meminta PIN") salah ditandai. Diperbaiki dengan pola penyangkalan (`unless` dan `unless_after`), dan penipu yang meniru bahasa waspada tetap terdeteksi.
-2. **Kesenjangan antara korpus yang disetel dan pesan baru.** Pada set held-out pertama, hanya 4 dari 12 (Indonesia) dan 3 dari 12 (Inggris) pesan penipuan terdeteksi, padahal korpus yang disetel menunjukkan hampir semuanya terdeteksi. Aturan lalu diperluas berdasarkan **jenis** kekurangan (nominal gaji, kalimat permintaan uang, pola penonaktifan akun, tautan tanpa skema, dan sejenisnya). Set pertama itu kemudian masuk ke korpus regresi, dan set kedua yang benar-benar baru ditulis untuk angka di 6.2.
-3. **Aturan kata kunci menangkap parafrase dengan buruk.** Penipu yang mengubah susunan kalimat sering lolos. Ini keterbatasan mendasar pendekatan ini, bukan sekadar kurang aturan.
-
-### 6.4 Batas klaim
-
-Kalimat yang aman: *"Dalam uji dengan 20 pesan baru (10 Indonesia, 10 Inggris) yang tidak dipakai menyetel aturan, 11 pesan penipuan terdeteksi dan tidak ada dari 12 pesan sah yang salah ditandai. Contohnya sedikit dan ditulis oleh pembuat aturan, jadi ini perkiraan kasar, bukan akurasi di dunia nyata."*
-
-Jangan menyebut angka dari 6.1 sebagai akurasi.
-
----
-
-## 7. Keterbatasan dan langkah lanjutan
-
-**Keterbatasan:** hanya pola kata berbahasa Indonesia dan Inggris; situs tidak dibuka saat cek tautan; bobot dan ambang belum dikalibrasi; korpus kecil dan tidak independen; dialog skenario belum diuji pada pengguna.
-
-**Langkah lanjutan yang masuk akal:**
-1. Kumpulkan pesan penipuan nyata yang sudah dianonimkan dan **dengan persetujuan**, lalu kalibrasi bobot secara statistik seperti pada preseden filter spam.
-2. Minta pihak lain menulis korpus uji, supaya evaluasi independen.
-3. Uji skenario Latihan pada beberapa pengguna dan perbaiki bagian yang membingungkan.
-4. Tambah deteksi untuk bahasa daerah dan campuran bahasa.
 
 ---
 
 
-## 8. Pustaka
+## 7. Pustaka
 
 **Kajian psikologi penipuan**
 - Stajano, F. dan Wilson, P. (2011). Understanding scam victims: seven principles for systems security. *Communications of the ACM*, 54(3), 70-75. https://doi.org/10.1145/1897852.1897872. Versi laporan teknis: https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-754.html
