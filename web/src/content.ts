@@ -50,6 +50,7 @@ export const SAMPLES = [
   { name: "Giveaway", text: "Selamat anda terpilih jadi pemenang giveaway! Segera kirim kode OTP yang masuk ke HP Anda dan bayar biaya administrasi Rp50.000. Klik https://bca-verifikasi.xyz sekarang juga. Jangan bilang siapa-siapa." },
   { name: "Lowongan kerja", text: "Lowongan admin online dari HP, tanpa pengalaman, gaji jutaan per minggu. Transfer dulu biaya pendaftaran Rp100.000 untuk amankan slot. Hubungi HRD kami lewat WhatsApp sekarang juga." },
   { name: "Akun diblokir", text: "Pihak bank menginformasikan akun Anda akan diblokir permanen. Segera klik https://bit.ly/verif-akun dan sebutkan kode OTP untuk verifikasi." },
+  { name: "Manipulasi Karakter", text: "D3P0 20RB W3D3 JUT44N J4NG4N S4MP41 K3L3W4T4N " },
   { name: "Pesan biasa", text: "Halo, besok rapat panitia jam 3 di ruang himpunan ya. Jangan lupa bawa laptop." },
 ];
 
@@ -75,5 +76,6 @@ export const SAMPLES_EN = [
   { name: "Giveaway", text: "Congratulations! You have been selected as the winner of a $5,000 gift card. Pay a small processing fee to claim your prize at https://prize-center.example" },
   { name: "Fake job", text: "Work from home, no experience needed, earn $500 per day. Pay a registration fee of $50 to start today and message me on Telegram." },
   { name: "Account blocked", text: "URGENT: Your bank account has been suspended. Verify now at http://secure-bank-login.xyz and send your one-time password to reactivate." },
+  { name: "Character Manipulation", text: "D3P0 20RB W3D3 JUT44N J4NG4N S4MP41 K3L3W4T4N " },
   { name: "Normal message", text: "Hi team, the meeting is moved to 3 pm tomorrow. Please bring your laptop." },
 ];

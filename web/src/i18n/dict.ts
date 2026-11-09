@@ -41,7 +41,7 @@ export const ID = {
     emptyTautan: ["Tautan diuraikan: siapa pemilik domain sebenarnya", "Tanda bahaya pada bentuk tautan ditandai", "Langkah yang bisa kamu ambil"],
     errTitle: "Belum bisa diperiksa", errGeneric: "Terjadi kesalahan saat memeriksa. Muat ulang halaman lalu coba lagi.",
     errNotBuilt: "Mesin analisis belum dibuild. Jalankan: npm run build:wasm", errOutdated: "Mesin analisis belum diperbarui. Jalankan: npm run build:wasm",
-    sampleNames: ["Giveaway", "Lowongan kerja", "Akun diblokir", "Pesan biasa"],
+    sampleNames: ["Giveaway", "Lowongan kerja", "Akun diblokir", "Manipulasi Karakter", "Pesan biasa"],
     linkSampleNames: ["Domain tiruan", "File APK", "Pengecoh @", "Tautan resmi"],
   },
   box: {
@@ -145,7 +145,7 @@ export const EN: Dict = {
     emptyTautan: ["The link is broken down: who really owns the domain", "Warning signs in the link's shape are highlighted", "Steps you can take"],
     errTitle: "Couldn't check this", errGeneric: "Something went wrong while checking. Reload the page and try again.",
     errNotBuilt: "The analysis engine hasn't been built. Run: npm run build:wasm", errOutdated: "The analysis engine is out of date. Run: npm run build:wasm",
-    sampleNames: ["Giveaway", "Fake job", "Account blocked", "Normal message"],
+    sampleNames: ["Giveaway", "Fake job", "Account blocked","Character Manipulation", "Normal message"],
     linkSampleNames: ["Look-alike domain", "APK file", "@ trick", "Official link"],
   },
   box: {
