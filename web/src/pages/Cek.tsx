@@ -25,51 +25,83 @@ type Mode = "pesan" | "tautan";
 function Empty({ mode }: { mode: Mode }) {
   const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    if (reduced()) return;
-    gsap.from(ref.current, { y: 20, opacity: 0, duration: 0.6, ease: "power2.out", delay: 0.2 });
-  }, { scope: ref });
+  const parts = mode === "pesan" ? t.demo.pesan : t.demo.tautan;
   const points = mode === "pesan" ? t.cek.emptyPesan : t.cek.emptyTautan;
+
+  let k = 0;
+  const nodes = parts.map((p, i) => {
+    if (typeof p === "string") return <span key={i}>{p}</span>;
+    const n = k++;
+    return (
+      <span key={i} className="mark">
+        <span data-bg={n} className="mark-bg" aria-hidden />
+        <span className="mark-t">{p.m}</span><sup>{n + 1}</sup>
+      </span>
+    );
+  });
+  const tags = parts.filter((p): p is { m: string; tag: string } => typeof p !== "string").map((p) => p.tag);
+
+  // Satu putaran: pesan muncul, bagian janggal disorot satu per satu, lalu meter terisi. Hanya transform dan opacity.
+  // Berhenti sendiri saat kartu tidak terlihat (termasuk saat tab Cek tersembunyi).
+  useGSAP(() => {
+    if (reduced() || !ref.current) return;
+    const q = gsap.utils.selector(ref);
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.3, defaults: { ease: "power2.out" } });
+    tl.set(q("[data-stage]"), { opacity: 1 })
+      .fromTo(q("[data-bubble]"), { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+    // Daftar di bawah menyala bergantian mengikuti adegan: sorot, label, lalu meter.
+    const row = (i: number, at: string) => tl.fromTo(q(`[data-row="${i}"]`), { opacity: 0.4 }, { opacity: 1, duration: 0.3 }, at);
+    tags.forEach((_, i) => {
+      tl.fromTo(q(`[data-bg="${i}"]`), { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, i === 0 ? ">+0.35" : ">+0.2");
+      if (i === 0) row(0, "<");
+      tl.fromTo(q(`[data-chip="${i}"]`), { opacity: 0, y: 8, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.35 }, "<+0.25");
+      if (i === 0) row(1, "<");
+    });
+    tl.fromTo(q("[data-fill]"), { scaleX: 0 }, { scaleX: 1, duration: 0.3, stagger: 0.16, ease: "power1.out" }, ">+0.15");
+    row(2, "<");
+    tl.fromTo(q("[data-verdict]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35 }, "<")
+      .to(q("[data-stage]"), { opacity: 0, duration: 0.45 }, "+=3")
+      .to(q("[data-row]"), { opacity: 0.4, duration: 0.45 }, "<");
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? tl.play() : tl.pause()));
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, { scope: ref, dependencies: [mode, tags.length], revertOnUpdate: true });
+
   return (
-    <div ref={ref} className="glow-card-orange p-6 sm:p-9 flex flex-col justify-between min-h-[440px] text-left group">
-      <div>
-        {/* Top-left squircle icon */}
-        <div className="flex size-12 items-center justify-center rounded-2xl border border-line bg-surface text-brand shadow-sm backdrop-blur">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-            <path d="M7 7h10M7 12h10M7 17h6" />
-          </svg>
-        </div>
-
-        <h2 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">{t.cek.emptyTitle}</h2>
-        
-        <p className="mt-2.5 text-sm sm:text-base text-muted leading-relaxed">
-          {mode === "pesan"
-            ? "Tempel pesan mencurigakan di sebelah kiri. JEDA membedah manipulasi psikologis & tanda bahaya secara lokal di perangkatmu."
-            : "Periksa struktur domain, subdomain, dan pola tautan yang berpotensi mengecoh sebelum kamu membukanya."}
-        </p>
-
-        <ul className="mt-6 space-y-3 text-left text-sm">
-          {points.map((p) => (
-            <li key={p} className="flex items-center gap-3">
-              <span className="size-2 shrink-0 rounded-full bg-brand shadow-[0_0_8px_var(--brand)]" aria-hidden />
-              <span className="text-ink font-medium leading-snug">{p}</span>
-            </li>
-          ))}
+    <div ref={ref} className="spec-card">
+      <div data-stage>
+        <p className="spec-label">{t.demo.label}</p>
+        <p data-bubble className={`spec-bubble ${mode === "tautan" ? "font-mono text-[0.92rem] break-all" : ""}`}>{nodes}</p>
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label={t.cek.emptyTitle}>
+          {tags.map((tag, i) => <li key={tag} data-chip={i} className="spec-chip"><b>{i + 1}</b>{tag}</li>)}
         </ul>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="flex w-28 gap-1 sm:w-36" aria-hidden>
+            {[0, 1, 2].map((i) => <span key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"><span data-fill className="block h-full origin-left bg-tinggi" /></span>)}
+          </div>
+          <span data-verdict className="text-sm font-bold text-tinggi">{t.levels.tinggi.title}</span>
+        </div>
       </div>
 
-      {/* Bottom action bar with arrow */}
-      <div className="mt-8 pt-5 border-t border-line flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-brand flex items-center gap-2">
-          <span className="size-2 rounded-full bg-brand shadow-[0_0_8px_var(--brand)] animate-pulse" />
-          100% Di Perangkatmu
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-ink transition group-hover:text-brand">
-          <span>Siap Cek</span>
-          <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
-        </span>
-      </div>
+      <h2 className="mt-8 text-2xl font-extrabold tracking-tight sm:text-3xl">{t.cek.emptyTitle}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">{mode === "pesan" ? t.demo.leadPesan : t.demo.leadTautan}</p>
+      <ol className="mt-5 divide-y divide-line border-y border-line">
+        {points.map((p, i) => (
+          <li key={p} data-row={i} className="flex items-center gap-4 py-3">
+            <span className="flex w-8 shrink-0 items-center" aria-hidden>
+              {i === 0 && <span className="block h-3.5 w-7 rounded-sm border-b-2 border-tinggi bg-tinggi/25" />}
+              {i === 1 && <b className="grid size-5 place-items-center rounded-full bg-tinggi text-[0.65rem] text-white">1</b>}
+              {i === 2 && <span className="flex gap-0.5"><i className="h-1.5 w-2 rounded-full bg-tinggi" /><i className="h-1.5 w-2 rounded-full bg-tinggi" /><i className="h-1.5 w-2 rounded-full bg-tinggi" /></span>}
+            </span>
+            <span className="text-sm font-semibold leading-snug sm:text-base">{p}</span>
+          </li>
+        ))}
+      </ol>
+
+      <p className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line pt-4 text-xs text-muted">
+        <span>{t.demo.note}</span>
+        <span className="font-semibold text-brand">{t.demo.device}</span>
+      </p>
     </div>
   );
 }
@@ -93,7 +125,8 @@ export default function Cek({ goto }: { goto: Goto }) {
     if (reduced()) return;
     gsap.timeline({ defaults: { ease: "power3.out" } })
       .from("[data-in=line]", { yPercent: 110, duration: 0.8, stagger: 0.14 })
-      .from("[data-in=fade]", { y: 20, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.45");
+      .from("[data-in=fade]", { y: 20, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.45")
+      .from("[data-underline]", { scaleX: 0, duration: 0.7, ease: "power3.inOut" }, "-=0.5");
   }, { scope: root });
 
   function reset() { setResult(null); setParts(null); setError(""); setExtra(null); }
@@ -133,7 +166,7 @@ export default function Cek({ goto }: { goto: Goto }) {
         <section className="min-w-0">
           <h1 className="text-[clamp(2rem,9vw,2.5rem)] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
             <span className="block overflow-hidden pb-1"><span data-in="line" className="block">{t.cek.h1a}</span></span>
-            <span className="block overflow-hidden pb-1"><span data-in="line" className="block">{t.cek.h1b}</span></span>
+            <span className="block overflow-hidden pb-1"><span data-in="line" className="block"><span className="mark-line">{t.cek.h1b}<i data-underline aria-hidden /></span></span></span>
           </h1>
           <p data-in="fade" className="mt-4 max-w-prose text-base leading-relaxed text-muted sm:mt-5 sm:text-lg">{t.cek.lead}</p>
           <div data-in="fade"><ThreeSteps /></div>
@@ -141,7 +174,7 @@ export default function Cek({ goto }: { goto: Goto }) {
           <div data-in="fade" role="group" aria-label={t.cek.modeGroup} className="mt-6 flex w-full rounded-full border border-line bg-surface p-1 sm:mt-7 sm:inline-flex sm:w-auto backdrop-blur">
             {([["pesan", t.cek.modePesan], ["tautan", t.cek.modeTautan]] as const).map(([m, l]) => (
               <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m}
-                className={`min-h-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none ${mode === m ? "bg-gradient-to-r from-amber-500 to-orange-600 text-neutral-950 font-bold shadow-[0_0_16px_rgba(245,158,11,0.35)]" : "text-muted hover:text-ink"}`}>{l}</button>
+                className={`min-h-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none ${mode === m ? "bg-brand text-on-brand font-bold" : "text-muted hover:text-ink"}`}>{l}</button>
             ))}
           </div>
 

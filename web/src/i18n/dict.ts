@@ -1,4 +1,5 @@
 type Section = { id: string; title: string; paras?: string[]; items?: string[]; after?: string[] };
+export type Part = string | { m: string; tag: string };
 type Level = { title: string; note: string; steps: string[] };
 
 export const ID = {
@@ -7,6 +8,19 @@ export const ID = {
     toDark: "Ganti ke mode gelap", toLight: "Ganti ke mode terang", language: "Bahasa",
     nav: { cek: "Cek dulu", latihan: "Latihan", darurat: "Langkah darurat", tentang: "Tentang" },
     navShort: { cek: "Cek", latihan: "Latihan", darurat: "Darurat", tentang: "Tentang" },
+  },
+  demo: {
+    label: "Contoh cara kerja",
+    pesan: ["Selamat, kamu terpilih jadi pemenang! ", { m: "Segera", tag: "Urgensi" }, " kirim ", { m: "kode OTP", tag: "Data rahasia" }, " dan ", { m: "bayar biaya administrasi", tag: "Biaya di muka" }, " lewat ", { m: "bca-verifikasi.xyz", tag: "Tautan mencurigakan" }, "."] as Part[],
+    tautan: ["https://", { m: "bca-verifikasi", tag: "Meniru nama bank" }, { m: ".xyz", tag: "Akhiran murahan" }, "/login"] as Part[],
+    leadPesan: "Tempel pesan yang terasa janggal. Bagian mencurigakan ditandai lengkap dengan alasannya.",
+    leadTautan: "Tempel tautan. Kami uraikan bentuknya tanpa membuka situsnya.",
+    note: "Contoh fiktif. Hasil asli muncul setelah kamu menekan tombol periksa.", device: "Diproses di perangkatmu",
+  },
+  footer: {
+    tagline: "Ragu? Jeda dulu, cek dulu.", blurb: "Alat bantu untuk mengenali pesan dan tautan mencurigakan, berlatih mengambil keputusan, dan tahu langkah saat sudah terlanjur.",
+    menu: "Menu", privacyTitle: "100% di perangkatmu", privacy: "Pesan dan tautan diproses di browsermu. Tanpa akun, tanpa database, tidak dikirim ke server mana pun.",
+    disclaimer: "JEDA alat bantu berbasis pola, bukan jaminan aman. Tetap verifikasi lewat kanal resmi.", top: "Kembali ke atas", copy: (y: number) => `© ${y} JEDA`,
   },
   steps: { label: "Tiga langkah JEDA", items: ["Kenali", "Belajar", "Bertindak"] },
   cek: {
@@ -98,6 +112,19 @@ export const EN: Dict = {
     toDark: "Switch to dark mode", toLight: "Switch to light mode", language: "Language",
     nav: { cek: "Check", latihan: "Practice", darurat: "Emergency steps", tentang: "About" },
     navShort: { cek: "Check", latihan: "Practice", darurat: "Emergency", tentang: "About" },
+  },
+  demo: {
+    label: "Example of how it works",
+    pesan: ["Congratulations, you won! ", { m: "Act now", tag: "Urgency" }, " and send your ", { m: "one-time password", tag: "Secret data" }, ", then ", { m: "pay a processing fee", tag: "Upfront fee" }, " at ", { m: "prize-center.xyz", tag: "Suspicious link" }, "."] as Part[],
+    tautan: ["https://", { m: "bca-verifikasi", tag: "Imitates a bank name" }, { m: ".xyz", tag: "Cheap ending" }, "/login"] as Part[],
+    leadPesan: "Paste a message that feels off. Suspicious parts are highlighted along with the reasons.",
+    leadTautan: "Paste a link. We break down its shape without opening the site.",
+    note: "Fictional example. Your real result appears after you press check.", device: "Processed on your device",
+  },
+  footer: {
+    tagline: "Unsure? Pause first, check first.", blurb: "A tool to recognize suspicious messages and links, practice making safer decisions, and know what to do when it's already happened.",
+    menu: "Menu", privacyTitle: "100% on your device", privacy: "Messages and links are processed in your browser. No account, no database, nothing is sent to any server.",
+    disclaimer: "JEDA is a pattern-based aid, not a guarantee of safety. Always verify through official channels.", top: "Back to top", copy: (y: number) => `© ${y} JEDA`,
   },
   steps: { label: "Three steps of JEDA", items: ["Recognize", "Learn", "Act"] },
   cek: {

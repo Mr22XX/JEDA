@@ -6,6 +6,8 @@ import Latihan from "./pages/Latihan";
 import Darurat from "./pages/Darurat";
 import Tentang from "./pages/Tentang";
 import Logo from "./components/Logo";
+import Footer from "./components/Footer";
+import Ambient from "./components/Ambient";
 import { useI18n, type Lang } from "./i18n";
 import type { Goto, Tab } from "./content";
 
@@ -65,7 +67,7 @@ function LangToggle() {
     <div role="group" aria-label={t.app.language} className="flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold backdrop-blur">
       {(["id", "en"] as Lang[]).map((l) => (
         <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l} lang={l}
-          className={`min-w-8 rounded-full px-2.5 py-1.5 transition ${lang === l ? "bg-gradient-to-r from-amber-500 to-orange-600 text-neutral-950 font-bold shadow-[0_0_12px_rgba(245,158,11,0.3)]" : "text-muted hover:text-ink"}`}>{l.toUpperCase()}</button>
+          className={`min-w-8 rounded-full px-2.5 py-1.5 transition ${lang === l ? "bg-brand text-on-brand font-bold" : "text-muted hover:text-ink"}`}>{l.toUpperCase()}</button>
       ))}
     </div>
   );
@@ -95,6 +97,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
+      <Ambient />
       <header className="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur">
         <div className="mx-auto box-content flex h-14 max-w-6xl items-center justify-between gap-3 px-5 pt-[env(safe-area-inset-top,0px)] sm:h-16">
           <button onClick={() => goto("cek")} className="flex items-center gap-2.5 rounded-lg py-2" aria-label={t.app.home}>
@@ -104,7 +107,7 @@ export default function App() {
           <nav aria-label={t.app.mainMenu} className="hidden gap-1 rounded-full border border-line bg-surface p-1 backdrop-blur sm:flex">
             {TABS.map((x) => (
               <button key={x.id} onClick={() => goto(x.id)} aria-current={tab === x.id ? "page" : undefined}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === x.id ? "bg-gradient-to-r from-amber-500 to-orange-600 text-neutral-950 shadow-[0_0_15px_rgba(245,158,11,0.35)]" : "text-muted hover:text-ink"}`}>{t.app.nav[x.id]}</button>
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === x.id ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{t.app.nav[x.id]}</button>
             ))}
           </nav>
           <div className="flex items-center gap-2"><LangToggle /><ThemeToggle /></div>
@@ -118,6 +121,8 @@ export default function App() {
         <div data-page hidden={tab !== "darurat"}><Darurat /></div>
         <div data-page hidden={tab !== "tentang"}><Tentang /></div>
       </div>
+
+      <Footer goto={goto} tab={tab} />
 
       <nav aria-label={t.app.mainMenu} className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur sm:hidden">
         {TABS.map((x) => (
