@@ -5,6 +5,7 @@ Aplikasi web untuk **MIT-Week 2026** (studi kasus *The Trust Trap*) yang membant
 **Demo langsung: https://jeda-kalibata.vercel.app/**
 
 > Semua analisis berjalan di browser (Rust yang dikompilasi ke WebAssembly). Teks dan tautan yang ditempel pengguna **tidak dikirim ke server mana pun**.
+> **Data uji asli:** selain contoh buatan sendiri, JEDA diuji dengan pesan penipuan asli yang diterima lewat SMS (modus saldo masuk, judi online, dan satu pesan sah sebagai pembanding). Datanya ada di [docs/DATA-TESTING.md](docs/DATA-TESTING.md). Tautan di dalamnya sengaja ditulis sebagai teks biasa, **jangan diklik**.
 
 ![Arsitektur JEDA](docs/arsitektur.svg)
 
