@@ -1,3 +1,12 @@
+/**
+ * Cek: halaman utama (tab "cek"), tempat pengguna memeriksa pesan atau tautan mencurigakan.
+ * - Dua mode: "pesan" (MessageBox + analyze) dan "tautan" (LinkBox + analyzeLink), berganti lewat switchMode.
+ * - Kolom kiri: judul, ThreeSteps, pemilih mode, kotak input, catatan privasi.
+ * - Kolom kanan: Result (+ LinkPartsCard untuk tautan), pesan galat, atau Empty (demo animasi GSAP saat belum ada hasil).
+ * - Pesan galat disimpan mentah dan diterjemahkan saat ditampilkan, supaya ikut berganti bila bahasa diganti.
+ * - Semua analisis berjalan di perangkat (modul ../engine). FactStrip ditampilkan di bawah.
+ * Props: goto (pindah tab, diteruskan ke Result).
+ */
 import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

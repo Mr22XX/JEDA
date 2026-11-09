@@ -1,3 +1,8 @@
+/**
+ * Kamus teks antarmuka: ID (Indonesia) dan EN (Inggris), keduanya bertipe Dict (diturunkan dari ID).
+ * Bagian: app, demo, footer, steps, cek, box, result, levels, tactics, parts, facts, latihan, darurat, about.
+ * Setiap kunci baru harus ditambahkan di kedua bahasa, kalau tidak TypeScript akan error.
+ */
 type Section = { id: string; title: string; paras?: string[]; items?: string[]; after?: string[] };
 export type Part = string | { m: string; tag: string };
 type Level = { title: string; note: string; steps: string[] };

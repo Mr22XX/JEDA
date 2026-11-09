@@ -1,3 +1,9 @@
+/**
+ * LinkBox: kotak input untuk memeriksa sebuah tautan (tab "cek", mode tautan).
+ * Fitur: tombol Tempel/Hapus (clipboard API), chip contoh tautan, Enter untuk kirim.
+ * Ukuran sengaja tetap (sama dengan MessageBox) supaya tata letak tidak bergeser saat mengetik.
+ * Logika analisis ada di parent, komponen ini hanya mengelola input.
+ */
 import { useRef, useState } from "react";
 import { useI18n } from "../i18n";
 

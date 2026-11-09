@@ -1,5 +1,11 @@
 //! Mesin aturan JEDA: aturan di rules.json, logika penilaian di sini.
 //! Semua berjalan di browser (WASM), teks pengguna tidak dikirim ke server.
+//!
+//! Isi file ini: pemuatan rules.json, penilaian pesan (analyze_text), dan dua fungsi yang diekspor ke
+//! JavaScript: analyze(text) dan analyze_link(url). Keduanya mengembalikan string JSON.
+//! Alur pesan: norm.rs membersihkan teks, aturan dicocokkan, domain.rs memeriksa tiruan merek, lalu skor dan tingkat dihitung.
+//! Catatan: rules.json ikut terkompilasi ke WASM, jadi setelah mengubahnya jalankan `npm run build:wasm` (di web/).
+//! Bentuk JSON harus tetap cocok dengan tipe di web/src/engine.ts. Tambahkan uji untuk setiap aturan baru.
 mod domain;
 mod link;
 mod norm;

@@ -1,3 +1,10 @@
+/**
+ * Tentang: halaman tab "tentang", menjelaskan cara kerja, batasan, dan sumber JEDA.
+ * Isi sepenuhnya dari t.about di i18n/dict.ts: tiap section dirender dari paras, items, after,
+ * dengan format ringan lewat Rich. Section dengan id "scoring" juga menampilkan tabel tingkat risiko.
+ * Placeholder {date} pada teks diganti dengan CHECKED (tanggal verifikasi data, data/facts.ts).
+ * Untuk mengubah isi halaman, edit dict.ts (kedua bahasa), bukan file ini.
+ */
 import { CHECKED } from "../data/facts";
 import { useI18n, Rich } from "../i18n";
 

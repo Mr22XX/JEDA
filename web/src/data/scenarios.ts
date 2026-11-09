@@ -1,3 +1,10 @@
+/**
+ * Data skenario Latihan: simulasi percakapan penipuan bercabang.
+ * Skenario: loker, kurir, teman, pinjol, investasi, lovescam.
+ * Struktur: Scenario (id, title, persona, contact, fact + factUrl, start) berisi nodes. Tiap Node punya
+ * messages, lalu choices (text, next, good, feedback, tactics) atau end (hasil akhir).
+ * Semua nama, nomor, dan tautan fiktif. Terjemahan Inggris: SCENARIOS_EN di data/en.ts.
+ */
 export type Choice = { text: string; next: string; good: boolean; feedback: string; tactics?: string[] };
 export type Node = { messages: string[]; choices?: Choice[]; end?: { good: boolean; title: string; summary: string } };
 export type Scenario = { id: string; title: string; persona: string; contact: string; audience?: string; fact: string; factUrl: string; start: string; nodes: Record<string, Node> };

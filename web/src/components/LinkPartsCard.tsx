@@ -1,3 +1,9 @@
+/**
+ * LinkPartsCard: membedah struktur tautan (skema, userinfo, subdomain, domain utama, port, path).
+ * Domain utama disorot karena dialah yang menentukan pemilik situs; userinfo (bagian sebelum @)
+ * dicoret merah karena sering dipakai untuk menyamarkan domain asli.
+ * Props: parts bertipe LinkParts dari engine.
+ */
 import type { LinkParts } from "../engine";
 import { useI18n } from "../i18n";
 

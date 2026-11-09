@@ -1,3 +1,8 @@
+/**
+ * MessageBox: kotak input untuk menempel pesan mencurigakan (tab "cek", mode pesan).
+ * Fitur: Tempel/Hapus, penghitung karakter (maks 5000), chip contoh pesan, Ctrl/Cmd+Enter untuk kirim.
+ * Semua ukuran tetap; teks panjang digulir di dalam kotak, bukan memperbesar kotaknya.
+ */
 import { useRef, useState } from "react";
 import { useI18n } from "../i18n";
 

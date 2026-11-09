@@ -1,4 +1,7 @@
-/** Ikon panah dan tautan keluar. Warna mengikuti teks (currentColor), jadi otomatis ikut mode gelap. */
+/**
+ * Icons: ikon SVG kecil yang dipakai ulang, yaitu Arrow (kiri/kanan) dan External (tautan keluar).
+ * Warna mengikuti currentColor, jadi otomatis ikut mode gelap/terang.
+ */
 type Dir = "left" | "right";
 
 export function Arrow({ dir, size = 18 }: { dir: Dir; size?: number }) {

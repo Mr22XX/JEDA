@@ -1,3 +1,9 @@
+/**
+ * Footer: logo, tagline, tautan sosial (Instagram, GitHub, Website), menu navigasi antar tab,
+ * catatan privasi dan disclaimer, serta tombol "kembali ke atas".
+ * Props: goto (pindah tab) dan tab (tab aktif, untuk menandai menu saat ini).
+ * Memberi padding bawah ekstra di mobile agar tidak tertutup navigasi bawah.
+ */
 import type { ReactNode } from "react";
 import Logo from "./Logo";
 import { useI18n } from "../i18n";

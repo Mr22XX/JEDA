@@ -1,3 +1,9 @@
+/**
+ * Data tab "Darurat": empat situasi korban (transfer, OTP/PIN, APK/tautan, ancaman).
+ * Tiap situasi punya langkah `now` (lakukan sekarang), `after` (setelahnya), `channels` (id kanal lapor
+ * yang merujuk ke CHANNELS di facts.ts), dan `warn` (teks peringatan untuk dibagikan lewat ShareCard).
+ * Terjemahan Inggris: SITUATIONS_EN di data/en.ts (dicocokkan lewat id).
+ */
 export type Situation = { id: string; title: string; desc: string; now: string[]; after: string[]; channels: string[]; warn: string };
 
 export const SITUATIONS: Situation[] = [

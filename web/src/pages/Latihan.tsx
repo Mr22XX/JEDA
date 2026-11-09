@@ -1,3 +1,14 @@
+/**
+ * Latihan: halaman tab "latihan", simulasi chat penipuan bercabang.
+ * Alur: daftar skenario -> percakapan (pilih jawaban, lihat umpan balik, lanjut) -> ringkasan akhir dengan skor
+ * dan taktik yang muncul; bila berakhir buruk, ada tombol menuju tab Darurat.
+ * - Skenario yang selesai disimpan di localStorage "jeda:selesai".
+ * - Props open ({ id, n }): membuka skenario langsung dari halaman lain (mis. rekomendasi di Result);
+ *   n berubah tiap permintaan supaya skenario yang sama bisa dibuka ulang.
+ * - Ganti bahasa di tengah simulasi mengembalikan ke daftar, agar percakapan tidak bercampur dua bahasa.
+ * - Pesan baru dianimasikan bergantian (GSAP), dilewati bila prefers-reduced-motion.
+ * Data: scenarios dari useI18n (sumber: data/scenarios.ts + data/en.ts).
+ */
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

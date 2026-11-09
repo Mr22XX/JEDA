@@ -1,3 +1,9 @@
+/**
+ * recommend: memilih skenario Latihan yang paling relevan dengan hasil Cek.
+ * Taktik yang dilatihkan sebuah skenario = gabungan taktik pada semua pilihannya (lihat data/scenarios.ts).
+ * Tiap taktik temuan diberi bobot (weight temuan), lalu skenario dengan total bobot taktik yang sama terbesar menang.
+ * Mengembalikan { id, tactics } atau null bila tidak ada yang cocok. Dipakai Result.tsx untuk tombol "Latihan".
+ */
 import { SCENARIOS } from "../data/scenarios";
 import type { Analysis } from "../engine";
 

@@ -1,3 +1,10 @@
+/**
+ * Kerangka aplikasi: header, navigasi tab (desktop dan mobile), pengalih tema dan bahasa, latar bergerak, dan footer.
+ * Routing memakai hash: #tab atau #tab/argumen (misalnya #latihan/loker). Keempat halaman selalu terpasang dan
+ * disembunyikan dengan `hidden`, supaya hasil Cek dan progres Latihan tidak hilang saat pindah tab.
+ * Menambah tab: tipe Tab di content.ts, TABS di file ini, nav dan navShort di i18n/dict.ts, IDS di components/Footer.tsx.
+ */
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

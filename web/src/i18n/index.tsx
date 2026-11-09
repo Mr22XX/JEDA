@@ -1,3 +1,10 @@
+/**
+ * Inti i18n: I18nProvider, hook useI18n, dan komponen Rich.
+ * - I18nProvider menyimpan bahasa aktif (localStorage "jeda:lang"), mengatur <html lang> dan judul halaman,
+ *   lalu menyediakan kamus UI (t), data berbahasa, dan helper terjemah hasil engine (tact, why, combo, linkError).
+ * - useI18n dipakai semua komponen untuk mengambil teks; wajib di dalam I18nProvider.
+ * - Rich merender teks ringan: **tebal**, `kode`, [tautan](url), _miring_.
+ */
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ID, EN, type Dict } from "./dict";
 import { scenariosFor, situationsFor, statsFor, channelsFor, type Lang } from "./data";

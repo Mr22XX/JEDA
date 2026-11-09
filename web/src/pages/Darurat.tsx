@@ -1,3 +1,11 @@
+/**
+ * Darurat: halaman tab "darurat", panduan langkah untuk korban yang sudah terlanjur.
+ * Dua tampilan: (1) daftar situasi, (2) detail situasi terpilih berisi checklist "sekarang" dan "setelahnya"
+ * (centang hanya disimpan di state, tidak di localStorage), daftar kanal lapor, dan teks peringatan
+ * yang bisa dibagikan sebagai gambar (ShareCard) atau disalin.
+ * Data: situations dan channels dari useI18n (sumber: data/emergency.ts, data/facts.ts).
+ * CHECKED menunjukkan tanggal terakhir data kanal diverifikasi.
+ */
 import { useState } from "react";
 import { CHECKED } from "../data/facts";
 import { useI18n } from "../i18n";

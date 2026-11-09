@@ -1,4 +1,10 @@
-// Terjemahan bahasa Inggris untuk konten. Struktur logika (next, good, tactics) tetap diambil dari data Indonesia.
+/**
+ * Terjemahan Inggris untuk data. Struktur logika (next, good, tactics) tetap diambil dari data Indonesia.
+ * - SCENARIOS_EN: skenario Latihan (dicocokkan lewat id skenario dan kunci node)
+ * - SITUATIONS_EN, STATS_EN, CHANNELS_EN, LINK_LABELS_EN: data Darurat, statistik, kanal, label tautan
+ * - WHY_EN (per rule_id engine), D01_NONLATIN_EN, COMBOS_EN, LINK_ERRORS_EN: teks hasil analisis
+ * Dipakai lewat i18n/data.ts dan i18n/index.tsx. STATS_EN dicocokkan lewat urutan indeks, jaga urutannya sama dengan STATS.
+ */
 type EnNode = { messages?: string[]; choices?: { text: string; feedback: string }[]; end?: { title: string; summary: string } };
 export type EnScenario = { title: string; persona: string; contact: string; audience?: string; fact: string; nodes: Record<string, EnNode> };
 

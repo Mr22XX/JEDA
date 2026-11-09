@@ -1,3 +1,9 @@
+/*
+ * Satu-satunya stylesheet: Tailwind v4, token warna (tema gelap bawaan, terang lewat data-theme="light"), kelas kustom
+ * (.btn-2, .chip, .lnk, kartu contoh .spec-*), dan animasi latar. Warna baru ditambah di kedua blok tema lalu di @theme inline.
+ * Animasikan hanya transform dan opacity. prefers-reduced-motion mematikan semua animasi CSS di bagian akhir.
+ */
+
 @import "tailwindcss";
 
 /* ─── JEDA Ember/Orange Design System ─── */

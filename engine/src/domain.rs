@@ -1,4 +1,9 @@
 //! Pemeriksaan domain yang meniru merek. Berbasis aturan sederhana dan bisa dijelaskan.
+//!
+//! Dipakai oleh lib.rs (pada teks pesan) dan link.rs (pada tautan). Daftar merek berasal dari `brands` di rules.json
+//! (huruf kecil, satu kata). Aturan: D01 huruf kembaran atau angka pengganti huruf, D02 beda satu huruf dari merek,
+//! D03 merek digabung kata lain, D04 punycode. Satu ID hanya dilaporkan sekali per pemanggilan.
+//! Catatan: D01 punya dua kalimat alasan; front-end membedakannya lewat awalan "Domain memuat".
 use crate::norm::{homoglyph, leet};
 use crate::Finding;
 use regex::Regex;

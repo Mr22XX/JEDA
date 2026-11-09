@@ -1,3 +1,9 @@
+/**
+ * Konten dan tipe kecil lintas halaman: LEVELS (tingkat kewaspadaan dan kelas Tailwind-nya), contoh pesan dan tautan,
+ * serta tipe Tab dan Goto. Nama kelas di LEVELS harus ditulis utuh agar terdeteksi Tailwind.
+ * Urutan contoh harus sama dengan urutan nama tombolnya di i18n/dict.ts (sampleNames, linkSampleNames). Contoh harus fiktif.
+ */
+
 import type { Level } from "./engine";
 
 // Nama kelas ditulis lengkap agar terdeteksi Tailwind.

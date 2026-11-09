@@ -1,4 +1,7 @@
-/** Logo JEDA: dua batang "jeda" dengan gradien oranye/amber menyala. */
+/**
+ * Logo: logo JEDA berupa dua batang "jeda" bergradien oranye/amber.
+ * Props: height (ukuran dasar, lebar dan jarak dihitung proporsional).
+ */
 export default function Logo({ height = 22 }: { height?: number }) {
   const bar = {
     width: height * 0.28,

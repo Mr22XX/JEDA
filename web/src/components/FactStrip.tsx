@@ -1,3 +1,8 @@
+/**
+ * FactStrip: deretan kartu statistik penipuan (jumlah laporan, kerugian, dana terblokir, dll.).
+ * Data dari useI18n().stats, jadi ikut bahasa aktif. Setiap kartu menautkan ke sumber aslinya.
+ * Sumber data: data/facts.ts (STATS), terjemahan di data/en.ts (STATS_EN).
+ */
 import { useI18n } from "../i18n";
 
 export default function FactStrip() {

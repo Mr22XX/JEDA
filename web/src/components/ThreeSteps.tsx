@@ -1,3 +1,7 @@
+/**
+ * ThreeSteps: penjelasan alur tiga langkah penggunaan (Kenali, Belajar, Bertindak).
+ * Bukan tombol, karena menu sudah ada di navigasi. Teks dari t.steps di i18n/dict.ts.
+ */
 import { useI18n } from "../i18n";
 
 /** Penjelasan alur, bukan tombol: menu sudah ada di navigasi. */

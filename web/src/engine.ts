@@ -1,3 +1,9 @@
+/**
+ * Jembatan ke mesin WASM hasil build Rust (src/wasm). Memuat modul sekali, memanggil analyze dan analyze_link,
+ * lalu mem-parse JSON-nya. Tipe di sini harus sejajar dengan struct Rust (Finding, Analysis, Parts, LinkAnalysis).
+ * Galat: ENGINE_NOT_BUILT bila src/wasm belum dibuild, ENGINE_OUTDATED bila WASM lama. Bangun ulang dengan `npm run build:wasm`.
+ */
+
 export type Finding = { rule_id: string; tactic: string; weight: number; start: number; end: number; snippet: string; why: string };
 export type Level = "tidak_ditemukan" | "ringan" | "sedang" | "tinggi";
 export type Analysis = { score: number; level: Level; findings: Finding[]; combos: string[]; tactics: string[]; disclaimer: string };

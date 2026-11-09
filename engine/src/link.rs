@@ -1,4 +1,9 @@
 //! Pemeriksa tautan: hanya membaca bentuk URL (situs tidak dibuka), berbasis aturan yang bisa dijelaskan.
+//!
+//! Alur: prepare (rapikan, ambil tautan pertama) -> parse -> validasi host -> pecah domain -> aturan L01 sampai L25
+//! dan domain::check -> skor. Daftar konstanta di bagian atas (HOSTING, SHORTENERS, BAIT, GAMBLE, dst.) paling sering diubah.
+//! Catatan: pesan galat dan nama kombinasi menjadi kunci terjemahan di front-end (LINK_ERRORS_EN, COMBOS_EN),
+//! jadi ubah keduanya bersamaan. Tipe keluaran harus sejajar dengan web/src/engine.ts.
 use crate::domain;
 use crate::Finding;
 use regex::Regex;

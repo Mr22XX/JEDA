@@ -1,3 +1,11 @@
+/**
+ * Data fakta dan kanal pelaporan.
+ * - CHECKED: tanggal terakhir data diverifikasi. Perbarui setiap kali data dicek ulang.
+ * - STATS: statistik penipuan dari OJK/pemberitaan (dipakai FactStrip).
+ * - CHANNELS: kanal pelaporan resmi (IASC, Kontak 157, SiPasti, CekRekening, AduanNomor, Patroli Siber).
+ * Kanal bisa berubah, jadi verifikasi ke situs resmi sebelum mengubah.
+ * Terjemahan Inggris: STATS_EN dan CHANNELS_EN di data/en.ts.
+ */
 export type Link = { label: string; href: string };
 export type Channel = { id: string; name: string; use: string; links: Link[] };
 

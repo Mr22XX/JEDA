@@ -5,6 +5,12 @@
 //! berlingkar, huruf beraksen), karakter tak terlihat, tanda sisipan di tengah kata ("mai'n",
 //! "GAC/OR", "au-t,o"), angka pengganti huruf ("s3gera", "z3'u5"), huruf kecil "l" yang
 //! menyamar sebagai "i" di kata kapital ("LlNK"), huruf berulang ("nyaaaa"), dan huruf terpisah ("o t p").
+//!
+//! Dipakai oleh lib.rs (normalize, squeeze) dan domain.rs (homoglyph, leet).
+//! Langkah normalize: tandai tautan, buang karakter tak terlihat dan ganti huruf kembaran, buang tanda sisipan,
+//! pulihkan angka pengganti huruf, ringkas huruf berulang, gabungkan huruf terpisah.
+//! Aturan emas: `text`, `spans`, dan `starts` harus selalu sejajar per karakter. Posisi memakai UTF-16.
+//! Setelah mengubah langkah apa pun, jalankan seluruh `cargo test` (terutama uji judi online dan pesan sah).
 
 pub struct Norm {
     pub text: String,

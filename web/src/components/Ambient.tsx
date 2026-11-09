@@ -1,3 +1,9 @@
+/**
+ * Ambient: latar bergerak di belakang seluruh halaman.
+ * Dua cahaya (orb) bergeser pelan lewat CSS, ditambah satu cahaya yang mengikuti kursor (GSAP quickTo)
+ * hanya di perangkat dengan mouse. Dijeda saat tab tidak terlihat, dimatikan untuk prefers-reduced-motion.
+ * Dekoratif saja (aria-hidden), tidak membawa informasi.
+ */
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 

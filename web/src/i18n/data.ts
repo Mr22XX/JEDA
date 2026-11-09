@@ -1,3 +1,8 @@
+/**
+ * Penggabung data berbahasa: memilih versi Indonesia (data asli) atau Inggris (data asli + override dari data/en.ts).
+ * Fungsi scenariosFor, situationsFor, statsFor, channelsFor di-memo agar terjemahan hanya dihitung sekali.
+ * Bila terjemahan suatu item tidak ada, otomatis jatuh ke teks Indonesia.
+ */
 import { SCENARIOS, type Scenario } from "../data/scenarios";
 import { SITUATIONS, type Situation } from "../data/emergency";
 import { STATS, CHANNELS, type Channel } from "../data/facts";

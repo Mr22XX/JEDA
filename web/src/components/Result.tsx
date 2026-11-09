@@ -1,3 +1,11 @@
+/**
+ * Result: kartu hasil analisis pesan/tautan.
+ * Menampilkan tingkat risiko + meter, teks yang disorot per temuan (findings), alasan tiap taktik,
+ * kombinasi pola berbahaya, langkah yang disarankan, dan tombol menuju tab Darurat / Latihan.
+ * Animasi masuk memakai GSAP (useGSAP), dilewati bila prefers-reduced-motion.
+ * Catatan desain: hasil bersih memakai ikon "i", karena JEDA tidak pernah menyatakan sesuatu aman.
+ * Props: result (Analysis dari engine), text (teks asli), mode ("pesan" | "tautan"), onGoto.
+ */
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

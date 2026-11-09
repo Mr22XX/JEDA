@@ -1,3 +1,9 @@
+/**
+ * ShareCard: tombol untuk membagikan peringatan sebagai gambar (PNG 1080x1350).
+ * Gambar digambar di canvas pada perangkat pengguna, tidak ada yang dikirim ke server.
+ * Memakai Web Share API bila tersedia; kalau tidak, gambar diunduh.
+ * Props: text (isi peringatan, dari field `warn` di data/emergency.ts).
+ */
 import { useState } from "react";
 import { useI18n } from "../i18n";
 
