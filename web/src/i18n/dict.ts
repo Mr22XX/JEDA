@@ -122,14 +122,14 @@ export const EN: Dict = {
     note: "Fictional example. Your real result appears after you press check.", device: "Processed on your device",
   },
   footer: {
-    tagline: "Unsure? Pause first, check first.", blurb: "A tool to recognize suspicious messages and links, practice making safer decisions, and know what to do when it's already happened.",
+    tagline: "Unsure? Take a JEDA, then check.", blurb: "A tool to recognize suspicious messages and links, practice making safer decisions, and know what to do when it's already happened.",
     menu: "Menu", privacyTitle: "100% on your device", privacy: "Messages and links are processed in your browser. No account, no database, nothing is sent to any server.",
     disclaimer: "JEDA is a pattern-based aid, not a guarantee of safety. Always verify through official channels.", top: "Back to top", copy: (y: number) => `© ${y} JEDA`,
   },
   steps: { label: "Three steps of JEDA", items: ["Recognize", "Learn", "Act"] },
   cek: {
-    h1a: "Unsure about this message?", h1b: "Pause first.",
-    lead: "Paste a message or link that feels off. We show you the suspicious parts and why.",
+    h1a: "Unsure about this message?", h1b: "Take a JEDA.",
+    lead: "JEDA is Indonesian for “pause.” Paste a message or link that feels off, and we show you the suspicious parts and why.",
     modeGroup: "Type of check", modePesan: "Check message", modeTautan: "Check link",
     privacyPesan: "Your text is processed on this device and is not sent to any server. Don't enter real personal data such as ID numbers or OTP codes.",
     privacyTautan: "We only read the shape of the link on your device. The site is not opened and the link is not sent anywhere.",
@@ -190,7 +190,7 @@ export const EN: Dict = {
     warnTitle: "Warn friends and family", warnHint: "Copy this message and send it to a group. Don't include victims' personal data.",
     share: "Share as image", copy: "Copy text only", copied: "Copied", shareTitle: "Warning from JEDA",
     downloaded: "Image downloaded. Send it through your favourite app.", imgFail: "The image couldn't be created in this browser. Use Copy text only.",
-    cardTitle: "Beware!", cardTagline: "Doubtful? Pause, then check.", cardFooter: "Share with friends and family",
+    cardTitle: "Beware!", cardTagline: "Doubtful? Take a JEDA, then check.", cardFooter: "Share with friends and family",
   },
   about: {
     title: "About and limitations",
