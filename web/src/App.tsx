@@ -6,6 +6,7 @@ import Latihan from "./pages/Latihan";
 import Darurat from "./pages/Darurat";
 import Tentang from "./pages/Tentang";
 import Logo from "./components/Logo";
+import Footer from "./components/Footer";
 import { useI18n, type Lang } from "./i18n";
 import type { Goto, Tab } from "./content";
 
@@ -51,7 +52,7 @@ function ThemeToggle() {
   }
   return (
     <button type="button" onClick={toggle} aria-label={dark ? t.app.toLight : t.app.toDark} title={dark ? t.app.toLight : t.app.toDark}
-      className="flex size-10 items-center justify-center rounded-full border-2 border-edge bg-surface text-ink transition hover:border-brand hover:text-brand">
+      className="flex size-10 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand hover:text-brand">
       {dark
         ? <Icon><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></Icon>
         : <Icon><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></Icon>}
@@ -62,10 +63,10 @@ function ThemeToggle() {
 function LangToggle() {
   const { t, lang, setLang } = useI18n();
   return (
-    <div role="group" aria-label={t.app.language} className="flex rounded-full border-2 border-edge bg-surface p-0.5 text-xs font-bold">
+    <div role="group" aria-label={t.app.language} className="flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold">
       {(["id", "en"] as Lang[]).map((l) => (
         <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l} lang={l}
-          className={`min-w-9 rounded-full px-2.5 py-2 transition ${lang === l ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{l.toUpperCase()}</button>
+          className={`min-w-9 rounded-full px-2.5 py-2 transition ${lang === l ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{l.toUpperCase()}</button>
       ))}
     </div>
   );
@@ -101,10 +102,10 @@ export default function App() {
             <Logo height={22} />
             <span className="text-lg font-extrabold tracking-tight">JEDA</span>
           </button>
-          <nav aria-label={t.app.mainMenu} className="hidden gap-1 rounded-full border-2 border-edge bg-surface p-1 sm:flex">
+          <nav aria-label={t.app.mainMenu} className="hidden gap-1 rounded-full border border-line bg-surface p-1 sm:flex">
             {TABS.map((x) => (
               <button key={x.id} onClick={() => goto(x.id)} aria-current={tab === x.id ? "page" : undefined}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === x.id ? "bg-brand text-on-brand" : "text-ink hover:text-brand"}`}>{t.app.nav[x.id]}</button>
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === x.id ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{t.app.nav[x.id]}</button>
             ))}
           </nav>
           <div className="flex items-center gap-2"><LangToggle /><ThemeToggle /></div>
@@ -118,6 +119,8 @@ export default function App() {
         <div data-page hidden={tab !== "darurat"}><Darurat /></div>
         <div data-page hidden={tab !== "tentang"}><Tentang /></div>
       </div>
+
+      <Footer goto={goto} />
 
       <nav aria-label={t.app.mainMenu} className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur sm:hidden">
         {TABS.map((x) => (
