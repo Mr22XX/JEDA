@@ -7,6 +7,7 @@ import Darurat from "./pages/Darurat";
 import Tentang from "./pages/Tentang";
 import Logo from "./components/Logo";
 import Footer from "./components/Footer";
+import Ambient from "./components/Ambient";
 import { useI18n, type Lang } from "./i18n";
 import type { Goto, Tab } from "./content";
 
@@ -43,7 +44,7 @@ function ThemeToggle() {
     m.addEventListener("change", f);
     return () => m.removeEventListener("change", f);
   }, []);
-  useEffect(() => { document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0c0a22" : "#f5f4ff"); }, [dark]);
+  useEffect(() => { document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#070605" : "#faf7f4"); }, [dark]);
   function toggle() {
     const next = !dark;
     setDark(next);
@@ -52,7 +53,7 @@ function ThemeToggle() {
   }
   return (
     <button type="button" onClick={toggle} aria-label={dark ? t.app.toLight : t.app.toDark} title={dark ? t.app.toLight : t.app.toDark}
-      className="flex size-10 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand hover:text-brand">
+      className="flex size-9 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand hover:text-brand">
       {dark
         ? <Icon><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></Icon>
         : <Icon><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></Icon>}
@@ -63,10 +64,10 @@ function ThemeToggle() {
 function LangToggle() {
   const { t, lang, setLang } = useI18n();
   return (
-    <div role="group" aria-label={t.app.language} className="flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold">
+    <div role="group" aria-label={t.app.language} className="flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold backdrop-blur">
       {(["id", "en"] as Lang[]).map((l) => (
         <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l} lang={l}
-          className={`min-w-9 rounded-full px-2.5 py-2 transition ${lang === l ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{l.toUpperCase()}</button>
+          className={`min-w-8 rounded-full px-2.5 py-1.5 transition ${lang === l ? "bg-brand text-on-brand font-bold" : "text-muted hover:text-ink"}`}>{l.toUpperCase()}</button>
       ))}
     </div>
   );
@@ -96,13 +97,14 @@ export default function App() {
 
   return (
     <div className="min-h-dvh pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
+      <Ambient />
       <header className="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur">
         <div className="mx-auto box-content flex h-14 max-w-6xl items-center justify-between gap-3 px-5 pt-[env(safe-area-inset-top,0px)] sm:h-16">
           <button onClick={() => goto("cek")} className="flex items-center gap-2.5 rounded-lg py-2" aria-label={t.app.home}>
             <Logo height={22} />
             <span className="text-lg font-extrabold tracking-tight">JEDA</span>
           </button>
-          <nav aria-label={t.app.mainMenu} className="hidden gap-1 rounded-full border border-line bg-surface p-1 sm:flex">
+          <nav aria-label={t.app.mainMenu} className="hidden gap-1 rounded-full border border-line bg-surface p-1 backdrop-blur sm:flex">
             {TABS.map((x) => (
               <button key={x.id} onClick={() => goto(x.id)} aria-current={tab === x.id ? "page" : undefined}
                 className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === x.id ? "bg-brand text-on-brand" : "text-muted hover:text-ink"}`}>{t.app.nav[x.id]}</button>
@@ -120,7 +122,7 @@ export default function App() {
         <div data-page hidden={tab !== "tentang"}><Tentang /></div>
       </div>
 
-      <Footer goto={goto} />
+      <Footer goto={goto} tab={tab} />
 
       <nav aria-label={t.app.mainMenu} className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur sm:hidden">
         {TABS.map((x) => (

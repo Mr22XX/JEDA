@@ -1,4 +1,5 @@
 type Section = { id: string; title: string; paras?: string[]; items?: string[]; after?: string[] };
+export type Part = string | { m: string; tag: string };
 type Level = { title: string; note: string; steps: string[] };
 
 export const ID = {
@@ -7,6 +8,19 @@ export const ID = {
     toDark: "Ganti ke mode gelap", toLight: "Ganti ke mode terang", language: "Bahasa",
     nav: { cek: "Cek dulu", latihan: "Latihan", darurat: "Langkah darurat", tentang: "Tentang" },
     navShort: { cek: "Cek", latihan: "Latihan", darurat: "Darurat", tentang: "Tentang" },
+  },
+  demo: {
+    label: "Contoh cara kerja",
+    pesan: ["Selamat, kamu terpilih jadi pemenang! ", { m: "Segera", tag: "Urgensi" }, " kirim ", { m: "kode OTP", tag: "Data rahasia" }, " dan ", { m: "bayar biaya administrasi", tag: "Biaya di muka" }, " lewat ", { m: "bca-verifikasi.xyz", tag: "Tautan mencurigakan" }, "."] as Part[],
+    tautan: ["https://", { m: "bca-verifikasi", tag: "Meniru nama bank" }, { m: ".xyz", tag: "Akhiran murahan" }, "/login"] as Part[],
+    leadPesan: "Tempel pesan yang terasa janggal. Bagian mencurigakan ditandai lengkap dengan alasannya.",
+    leadTautan: "Tempel tautan. Kami uraikan bentuknya tanpa membuka situsnya.",
+    note: "Contoh fiktif. Hasil asli muncul setelah kamu menekan tombol periksa.", device: "Diproses di perangkatmu",
+  },
+  footer: {
+    tagline: "Ragu? Jeda dulu, cek dulu.", blurb: "Alat bantu untuk mengenali pesan dan tautan mencurigakan, berlatih mengambil keputusan, dan tahu langkah saat sudah terlanjur.",
+    menu: "Menu", privacyTitle: "", privacy: "Pesan dan tautan diproses di browsermu. Tanpa akun, tanpa database, tidak dikirim ke server mana pun.",
+    disclaimer: "JEDA alat bantu berbasis pola, bukan jaminan aman. Tetap verifikasi lewat kanal resmi.", top: "Kembali ke atas", copy: (y: number) => `© ${y} JEDA || Kalibara Project`,
   },
   steps: { label: "Tiga langkah JEDA", items: ["Kenali", "Belajar", "Bertindak"] },
   cek: {
@@ -99,10 +113,23 @@ export const EN: Dict = {
     nav: { cek: "Check", latihan: "Practice", darurat: "Emergency steps", tentang: "About" },
     navShort: { cek: "Check", latihan: "Practice", darurat: "Emergency", tentang: "About" },
   },
+  demo: {
+    label: "Example of how it works",
+    pesan: ["Congratulations, you won! ", { m: "Act now", tag: "Urgency" }, " and send your ", { m: "one-time password", tag: "Secret data" }, ", then ", { m: "pay a processing fee", tag: "Upfront fee" }, " at ", { m: "prize-center.xyz", tag: "Suspicious link" }, "."] as Part[],
+    tautan: ["https://", { m: "bca-verifikasi", tag: "Imitates a bank name" }, { m: ".xyz", tag: "Cheap ending" }, "/login"] as Part[],
+    leadPesan: "Paste a message that feels off. Suspicious parts are highlighted along with the reasons.",
+    leadTautan: "Paste a link. We break down its shape without opening the site.",
+    note: "Fictional example. Your real result appears after you press check.", device: "Processed on your device",
+  },
+  footer: {
+    tagline: "Unsure? Take a JEDA, then check.", blurb: "A tool to recognize suspicious messages and links, practice making safer decisions, and know what to do when it's already happened.",
+    menu: "Menu", privacyTitle: "", privacy: "Messages and links are processed in your browser. No account, no database, nothing is sent to any server.",
+    disclaimer: "JEDA is a pattern-based aid, not a guarantee of safety. Always verify through official channels.", top: "Back to top", copy: (y: number) => `© ${y} JEDA || Kalibata Project`,
+  },
   steps: { label: "Three steps of JEDA", items: ["Recognize", "Learn", "Act"] },
   cek: {
-    h1a: "Unsure about this message?", h1b: "Pause first.",
-    lead: "Paste a message or link that feels off. We show you the suspicious parts and why.",
+    h1a: "Unsure about this message?", h1b: "Take a JEDA.",
+    lead: "JEDA is Indonesian for “pause.” Paste a message or link that feels off, and we show you the suspicious parts and why.",
     modeGroup: "Type of check", modePesan: "Check message", modeTautan: "Check link",
     privacyPesan: "Your text is processed on this device and is not sent to any server. Don't enter real personal data such as ID numbers or OTP codes.",
     privacyTautan: "We only read the shape of the link on your device. The site is not opened and the link is not sent anywhere.",
@@ -163,7 +190,7 @@ export const EN: Dict = {
     warnTitle: "Warn friends and family", warnHint: "Copy this message and send it to a group. Don't include victims' personal data.",
     share: "Share as image", copy: "Copy text only", copied: "Copied", shareTitle: "Warning from JEDA",
     downloaded: "Image downloaded. Send it through your favourite app.", imgFail: "The image couldn't be created in this browser. Use Copy text only.",
-    cardTitle: "Beware!", cardTagline: "Doubtful? Pause, then check.", cardFooter: "Share with friends and family",
+    cardTitle: "Beware!", cardTagline: "Doubtful? Take a JEDA, then check.", cardFooter: "Share with friends and family",
   },
   about: {
     title: "About and limitations",

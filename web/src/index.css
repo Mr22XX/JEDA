@@ -1,74 +1,179 @@
 @import "tailwindcss";
 
+/* ─── JEDA Ember/Orange Design System ─── */
 :root {
-  --paper: #f5f4ff; --surface: #ffffff; --ink: #15123b; --muted: #5e5a8a; --line: #e1defa;
-  --brand: #5b3fff; --on-brand: #ffffff; --edge: #7f78c8;
-  --calm: #0e9f7e; --ringan: #c98200; --sedang: #e5640f; --tinggi: #e11d48;
+  /* Dark Mode default: Pitch dark with warm amber/orange glow */
+  --paper: #070605;
+  --surface: #12100e;
+  --surface-card: #181512;
+  --ink: #ffffff;
+  --muted: #a39b92;
+  --line: rgba(255, 255, 255, 0.08);
+  --edge: rgba(255, 255, 255, 0.14);
+
+  /* Brand: Radiant Amber to Flame Orange */
+  --brand: #f59e0b;
+  --brand-flame: #ea580c;
+  --brand-deep: #c2410c;
+  --on-brand: #070605;
+
+  /* Semantic levels */
+  --calm: #10b981;
+  --ringan: #f59e0b;
+  --sedang: #ea580c;
+  --tinggi: #ef4444;
+
+  /* Glow tokens */
+  --glow-orange: rgba(245, 158, 11, 0.28);
+  --glow-orange-strong: rgba(234, 88, 12, 0.45);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --paper: #faf7f4;
+  --surface: #ffffff;
+  --surface-card: #f5ede6;
+  --ink: #1a1613;
+  --muted: #736961;
+  --line: #e8e2dc;
+  --edge: #d6cec6;
+  --brand: #ea580c;
+  --brand-flame: #c2410c;
+  --brand-deep: #9a3412;
+  --on-brand: #ffffff;
+  --calm: #059669;
+  --ringan: #d97706;
+  --sedang: #ea580c;
+  --tinggi: #dc2626;
+  --glow-orange: rgba(234, 88, 12, 0.15);
+  --glow-orange-strong: rgba(234, 88, 12, 0.25);
   color-scheme: light;
 }
-/* Tanpa pilihan manual, ikuti pengaturan sistem. Pilihan manual disimpan sebagai data-theme di <html>. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
-    --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #0c0a22; --surface: #16133a; --ink: #f2f0ff; --muted: #a9a5d6; --line: #2b2763;
-    --brand: #8b7bff; --on-brand: #0c0a22; --edge: #7a73c8;
-    --calm: #34d9a8; --ringan: #ffc24d; --sedang: #ff8a4c; --tinggi: #ff6b81; color-scheme: dark;
-}
+
 @theme inline {
-  --color-paper: var(--paper); --color-surface: var(--surface); --color-ink: var(--ink);
-  --color-muted: var(--muted); --color-line: var(--line); --color-brand: var(--brand);
-  --color-on-brand: var(--on-brand); --color-edge: var(--edge); --color-calm: var(--calm); --color-ringan: var(--ringan);
-  --color-sedang: var(--sedang); --color-tinggi: var(--tinggi);
-  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-card: var(--surface-card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-edge: var(--edge);
+  --color-brand: var(--brand);
+  --color-brand-flame: var(--brand-flame);
+  --color-brand-deep: var(--brand-deep);
+  --color-on-brand: var(--on-brand);
+  --color-calm: var(--calm);
+  --color-ringan: var(--ringan);
+  --color-sedang: var(--sedang);
+  --color-tinggi: var(--tinggi);
+  --font-sans: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+
+/* ─── Base Body ─── */
 body {
-  font-family: var(--font-sans); color: var(--ink); min-height: 100vh;
-  background:
-    radial-gradient(50rem 28rem at 85% -5%, color-mix(in srgb, var(--brand) 16%, transparent), transparent),
-    radial-gradient(40rem 24rem at -5% 35%, color-mix(in srgb, var(--calm) 10%, transparent), transparent),
-    var(--paper);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  min-height: 100vh;
+  background-color: var(--paper);
+  background-image: radial-gradient(60rem 28rem at 50% -10%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 70%);
+  overflow-x: hidden;
 }
-/* Kontrol interaktif: batasnya memakai --edge (kontras sekitar 3,9:1 di mode terang, 4,3:1 di mode gelap), bukan --line yang hampir tak terlihat. */
+
+/* Kartu datar: batas tipis, tanpa pendar. Nama kelas dipertahankan agar komponen lain tidak perlu diubah. */
+.glow-card-orange { border-radius: 1.5rem; border: 1px solid var(--line); background: var(--surface); }
+
+/* ─── Interactive Buttons & Chips ─── */
 @layer components {
   .btn-2, .btn-back {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem;
     padding: .5rem 1.1rem; border-radius: .75rem; font-weight: 700; line-height: 1.2; text-align: left;
-    background: var(--surface); transition: background-color .15s, border-color .15s, transform .15s;
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    transition: background-color .15s, border-color .15s, transform .15s;
   }
-  .btn-2 { border: 2px solid var(--brand); color: var(--brand); }
+  .btn-2 { border: 1.5px solid var(--brand); color: var(--brand); }
   .btn-2:hover { background: color-mix(in srgb, var(--brand) 14%, var(--surface)); }
   .btn-2.is-danger { border-color: var(--tinggi); color: var(--tinggi); }
   .btn-2.is-danger:hover { background: color-mix(in srgb, var(--tinggi) 14%, var(--surface)); }
   .btn-2:active, .btn-back:active { transform: scale(.98); }
   .btn-sm { min-height: 2.25rem; padding: .25rem .9rem; border-radius: 9999px; font-size: .875rem; }
-  .btn-back { border: 2px solid var(--edge); color: var(--ink); border-radius: 9999px; padding: .4rem 1rem .4rem .75rem; font-size: .9375rem; }
+  .btn-back { border: 1.5px solid var(--edge); color: var(--ink); border-radius: 9999px; padding: .4rem 1rem .4rem .75rem; font-size: .9375rem; }
   .btn-back:hover { border-color: var(--brand); color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, var(--surface)); }
+  
   .chip {
-    border: 1.5px solid color-mix(in srgb, var(--brand) 55%, transparent); background: color-mix(in srgb, var(--brand) 12%, var(--surface));
-    color: var(--brand); font-weight: 700; border-radius: 9999px; padding: .375rem .85rem; font-size: .875rem; transition: background-color .15s, transform .15s;
+    border: 1px solid var(--line);
+    background: var(--surface-card);
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 9999px;
+    padding: .375rem .85rem;
+    font-size: .875rem;
+    transition: all .15s ease;
   }
-  .chip:hover { background: color-mix(in srgb, var(--brand) 22%, var(--surface)); }
+  .chip:hover {
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+    color: var(--brand);
+  }
   .chip:active { transform: scale(.95); }
-  .lnk { color: var(--brand); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-  .lnk:hover { text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+
+  .lnk {
+    color: var(--brand);
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .lnk:hover {
+    opacity: 0.8;
+    text-decoration: none !important;
+  }
   .arrow { transition: transform .15s; }
   .btn-2:hover .arrow-r, button:hover > .arrow-r, a:hover > .arrow-r { transform: translateX(3px); }
   .btn-back:hover .arrow-l { transform: translateX(-3px); }
 }
-:focus-visible:not(textarea) { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+:focus-visible:not(textarea) { outline: 2px solid var(--brand); outline-offset: 2px; }
 textarea:focus, textarea:focus-visible, #lnk:focus, #lnk:focus-visible { outline: none; }
 
-/* Stabilo: GSAP menganimasikan background-size dari 0% ke 100% */
+/* Stabilo / Highlight marker */
 .sweep {
-  --hl: color-mix(in srgb, var(--tinggi) 26%, transparent);
+  --hl: color-mix(in srgb, var(--tinggi) 28%, transparent);
   background-color: transparent; color: inherit; border-radius: 4px; padding: 0 2px;
   background-image: linear-gradient(var(--hl), var(--hl)); background-repeat: no-repeat;
   background-position: left center; background-size: 0% 100%;
   border-bottom: 2px solid var(--tinggi); -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+
+/* ─── Gerak latar (hanya transform dan opacity, dikerjakan GPU) ─── */
+.ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
+.ambient[data-paused="true"] * { animation-play-state: paused !important; }
+.orb, .light { position: absolute; border-radius: 9999px; will-change: transform; }
+.orb { background: radial-gradient(circle, var(--glow-orange) 0%, transparent 65%); }
+.orb-a { width: 42rem; height: 42rem; top: -16rem; left: -14rem; opacity: .7; animation: drift-a 30s ease-in-out infinite alternate; }
+.orb-b { width: 34rem; height: 34rem; right: -12rem; bottom: -14rem; opacity: .5; animation: drift-b 38s ease-in-out infinite alternate; }
+.light { left: 0; top: 0; width: 36rem; height: 36rem; margin: -18rem 0 0 -18rem; opacity: 0; transition: opacity .6s;
+  background: radial-gradient(circle, color-mix(in srgb, var(--brand) 20%, transparent) 0%, transparent 62%); }
+.ambient[data-follow="true"] .light { opacity: 1; }
+@keyframes drift-a { to { transform: translate3d(14rem, 8rem, 0) scale(1.12); } }
+@keyframes drift-b { to { transform: translate3d(-12rem, -9rem, 0) scale(1.1); } }
+@media (max-width: 639px) { .orb-b { display: none; } .orb-a { width: 28rem; height: 28rem; } }
+
+/* Judul: stabilo di bawah "Jeda dulu." */
+.mark-line { position: relative; display: inline-block; z-index: 0; }
+.mark-line i { position: absolute; left: -.04em; right: -.04em; bottom: .06em; height: .3em; z-index: -1; border-radius: 2px;
+  background: var(--brand); opacity: .4; transform-origin: left; }
+
+/* Kartu contoh pemeriksaan */
+.spec-card { border: 1px solid var(--line); border-radius: 1.5rem; background: var(--surface); padding: 1.5rem; }
+@media (min-width: 640px) { .spec-card { padding: 2rem; } }
+.spec-label { display: flex; align-items: center; gap: .6rem; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.spec-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.spec-bubble { margin-top: .9rem; padding: .85rem 1.1rem; border: 1px solid var(--line); border-radius: 1rem 1rem 1rem .25rem; background: var(--paper); font-weight: 500; line-height: 2.1; }
+.mark { position: relative; display: inline-block; white-space: nowrap; line-height: 1.5; padding: 0 .12em; }
+.mark-bg { position: absolute; inset: 0; border-radius: .25rem; border-bottom: 2px solid var(--tinggi); background: color-mix(in srgb, var(--tinggi) 26%, transparent); transform-origin: left; }
+.mark-t { position: relative; }
+.mark sup { position: relative; margin-left: .2em; font-size: .62em; font-weight: 800; color: var(--tinggi); }
+.spec-chip { display: inline-flex; align-items: center; gap: .4rem; padding: .15rem .7rem .15rem .2rem; border: 1px solid var(--line); border-radius: 9999px; font-size: .8rem; font-weight: 600; }
+.spec-chip b { display: grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 9999px; background: var(--tinggi); color: #fff; font-size: .68rem; }
+
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

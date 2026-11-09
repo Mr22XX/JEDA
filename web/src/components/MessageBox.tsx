@@ -26,7 +26,7 @@ export default function MessageBox({ value, onChange, onSubmit, onClear, busy, s
 
   const near = value.length > MAX - 300;
   return (
-    <div className="rounded-3xl border-2 border-edge bg-surface shadow-xl shadow-brand/10 transition focus-within:border-transparent focus-within:shadow-2xl focus-within:shadow-brand/25">
+    <div className="rounded-3xl border border-line bg-surface shadow-2xl transition focus-within:border-brand/50 focus-within:shadow-[0_0_30px_rgba(245,158,11,0.15)]">
       <div className="flex min-h-14 items-center justify-between gap-3 px-4 sm:px-5">
         <label htmlFor="msg" className="flex min-w-0 items-center gap-2 text-sm font-semibold">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-brand">
@@ -64,7 +64,7 @@ export default function MessageBox({ value, onChange, onSubmit, onClear, busy, s
           {hint || (value ? `${value.length}/${MAX}` : "")}
         </span>
         <button type="button" onClick={onSubmit} disabled={busy || !value.trim()} aria-busy={busy} title="Ctrl + Enter"
-          className="h-11 w-36 shrink-0 sm:w-44 rounded-xl bg-brand font-semibold text-on-brand shadow-lg shadow-brand/30 transition hover:brightness-110 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
+          className="h-11 w-36 shrink-0 sm:w-44 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-neutral-950 shadow-lg shadow-amber-500/25 transition hover:brightness-110 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
           {t.box.submitMsg}
         </button>
       </div>

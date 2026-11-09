@@ -104,7 +104,7 @@ export default function Latihan({ goto, open }: Props) {
         {s.fact} <a href={s.factUrl} target="_blank" rel="noopener noreferrer" className="lnk">{L.source}</a>
       </p>
 
-      <section aria-label={L.chatAria} className="mt-5 overflow-hidden rounded-3xl border border-line bg-surface shadow-xl shadow-brand/10">
+      <section aria-label={L.chatAria} className="mt-5 overflow-hidden rounded-3xl border border-line bg-surface">
         <header className="flex items-center gap-3 bg-brand px-4 py-3 text-on-brand">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-on-brand/20 text-lg font-bold" aria-hidden>{s.contact.charAt(0)}</span>
           <span className="min-w-0">
@@ -151,7 +151,7 @@ export default function Latihan({ goto, open }: Props) {
                 <p className="mt-1 flex flex-wrap gap-2">{stats.tactics.map((x) => <span key={x} className="rounded-full border border-line px-2.5 py-0.5 text-sm font-semibold">{tact(x)}</span>)}</p>
               </>}
               <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
-                <button onClick={() => setSid(null)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-6 font-semibold text-on-brand shadow-lg shadow-brand/30 transition hover:brightness-110">{L.another}<Arrow dir="right" /></button>
+                <button onClick={() => setSid(null)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-6 font-semibold text-on-brand transition hover:brightness-110">{L.another}<Arrow dir="right" /></button>
                 <button onClick={() => start(s.id)} className="btn-2">{L.again}</button>
                 {!end.good && <button onClick={() => goto("darurat")} className="btn-2 is-danger">{L.toEmergency}<Arrow dir="right" /></button>}
               </div>
