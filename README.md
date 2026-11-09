@@ -14,8 +14,15 @@ Aplikasi web untuk **MIT-Week 2026** (studi kasus *The Trust Trap*) yang membant
 |---|---|---|
 | **Cek** | Recognize | Tempel pesan atau tautan, dapat skor, level waspada, kalimat yang disorot, dan alasan tiap temuan. |
 | **Latihan** | Learn | Simulasi chat bercabang: lowongan palsu, kurir/APK, teman minta transfer, pinjol, investasi, love scam. Tiap pilihan diberi umpan balik dan taktik penipunya. |
-| **Darurat** | Act | Langkah untuk empat situasi (sudah transfer, sudah kirim OTP/PIN, klik APK, diancam), kanal pelaporan resmi, dan pesan peringatan siap bagikan. |
+| **Darurat** | Act | Langkah untuk empat situasi (sudah transfer, sudah kirim OTP/PIN, klik APK, diancam), kanal pelaporan resmi, dan **pesan peringatan untuk teman dan keluarga** yang bisa dibagikan sebagai gambar atau disalin sebagai teks. |
 | **Tentang** | | Cara kerja, cara skor dihitung, dan batasan. |
+
+### Peringatkan teman dan keluarga
+
+Di menu Darurat, setelah memilih situasi, JEDA menyiapkan pesan peringatan siap kirim ke grup keluarga atau teman. Pesan itu tidak memuat data pribadi korban.
+
+- **Bagikan sebagai gambar:** pesan dibuat menjadi kartu gambar yang bisa diunduh dan dikirim lewat aplikasi apa pun.
+- **Salin teks saja:** pesan disalin ke clipboard untuk ditempel di WhatsApp, Telegram, atau media lain.
 
 Lainnya: dua bahasa (Indonesia dan Inggris), mode terang dan gelap, dan progres Latihan yang tersimpan di perangkat.
 
