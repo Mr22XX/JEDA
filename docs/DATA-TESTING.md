@@ -61,5 +61,5 @@ Pasti ,J P,
 ## C. Normal
 
 ```
-Bonus Libur Sekolah 2x lipat! Bayar 150rb Dapat 300 Tizo. Tunjukkan SMS ini di kasir Timezone s.d. 26 Juni 2026. myads.id/Timezone16066 Info *606#
+Bonus Libur Sekolah 2x lipat! Bayar 150rb Dapat 300 Tizo. Tunjukkan SMS ini di kasir Timezone s.d. 26 Juni 2026. myads.id/Timezone16066 Info *605#
 ```
